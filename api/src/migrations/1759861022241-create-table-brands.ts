@@ -22,6 +22,12 @@ export class CreateTableBrands1759861022241 implements MigrationInterface {
             isNullable: false,
           },
         ],
+        uniques: [
+          {
+            name: 'un_brn_name',
+            columnNames: ['name'],
+          },
+        ],
       }),
       true,
     );
