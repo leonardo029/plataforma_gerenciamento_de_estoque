@@ -41,6 +41,7 @@ export class CreateTableContacts1759933252933 implements MigrationInterface {
           },
         ],
       }),
+      true,
     );
   }
 

@@ -29,6 +29,7 @@ export class CreateTableStreetTypes1759939981034 implements MigrationInterface {
           },
         ],
       }),
+      true,
     );
   }
 

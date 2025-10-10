@@ -24,6 +24,7 @@ export class CreateTableCategories1759928580804 implements MigrationInterface {
         ],
         uniques: [{ name: 'un_ctg_name', columnNames: ['name'] }],
       }),
+      true,
     );
   }
 

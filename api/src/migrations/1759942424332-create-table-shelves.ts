@@ -24,6 +24,7 @@ export class CreateTableShelves1759942424332 implements MigrationInterface {
         ],
         uniques: [{ name: 'un_shl_name', columnNames: ['name'] }],
       }),
+      true,
     );
   }
 

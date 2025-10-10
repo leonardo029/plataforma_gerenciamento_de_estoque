@@ -53,6 +53,7 @@ export class CreateTableStockLocations1759943364406
           },
         ],
       }),
+      true,
     );
   }
 

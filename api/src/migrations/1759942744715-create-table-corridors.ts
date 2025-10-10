@@ -24,6 +24,7 @@ export class CreateTableCorridors1759942744715 implements MigrationInterface {
         ],
         uniques: [{ name: 'un_crr_name', columnNames: ['name'] }],
       }),
+      true,
     );
   }
 

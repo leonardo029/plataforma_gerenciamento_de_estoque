@@ -35,6 +35,7 @@ export class CreateTableNutritionalInformations1759929919506
           },
         ],
       }),
+      true,
     );
   }
 

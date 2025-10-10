@@ -24,6 +24,7 @@ export class CreateTableSections1759941887421 implements MigrationInterface {
         ],
         uniques: [{ name: 'un_sct_name', columnNames: ['name'] }],
       }),
+      true,
     );
   }
 
