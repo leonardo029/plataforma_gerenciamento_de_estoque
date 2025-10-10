@@ -16,7 +16,7 @@ export class CreateTableStockLocations1759943364406
             generationStrategy: 'uuid',
             default: 'uuid_generate_v4()',
           },
-          { name: 'id_shelve', type: 'uuid', isNullable: false },
+          { name: 'id_shelf', type: 'uuid', isNullable: false },
           { name: 'id_corridor', type: 'uuid', isNullable: false },
           { name: 'id_section', type: 'uuid', isNullable: false },
           {
@@ -34,8 +34,8 @@ export class CreateTableStockLocations1759943364406
         ],
         foreignKeys: [
           {
-            name: 'fk_sl_id_shelve',
-            columnNames: ['id_shelve'],
+            name: 'fk_sl_id_shelf',
+            columnNames: ['id_shelf'],
             referencedColumnNames: ['id'],
             referencedTableName: 'shelves',
           },
