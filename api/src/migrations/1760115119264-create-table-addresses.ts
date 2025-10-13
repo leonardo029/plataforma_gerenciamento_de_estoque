@@ -29,7 +29,7 @@ export class CreateTableAddresses1760115119264 implements MigrationInterface {
             name: 'complement',
             type: 'varchar',
             length: '255',
-            isNullable: false,
+            isNullable: true,
           },
           {
             name: 'cep',
