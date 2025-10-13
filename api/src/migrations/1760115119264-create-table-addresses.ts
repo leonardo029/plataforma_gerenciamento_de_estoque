@@ -51,7 +51,7 @@ export class CreateTableAddresses1760115119264 implements MigrationInterface {
           },
           {
             name: 'id_city',
-            type: 'uuid',
+            type: 'integer',
             isNullable: false,
           },
           {
@@ -71,7 +71,7 @@ export class CreateTableAddresses1760115119264 implements MigrationInterface {
           {
             name: 'fk_adr_id_city',
             columnNames: ['id_city'],
-            referencedColumnNames: ['id'],
+            referencedColumnNames: ['ibge_code'],
             referencedTableName: 'cities',
           },
         ],

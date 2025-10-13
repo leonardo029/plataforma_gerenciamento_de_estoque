@@ -29,7 +29,7 @@ export class CreateTableStockLocations1759943364406
         uniques: [
           {
             name: 'un_sl_shl_crr_sct',
-            columnNames: ['id_shelves', 'id_corridors', 'id_sections'],
+            columnNames: ['id_shelf', 'id_corridor', 'id_section'],
           },
         ],
         foreignKeys: [
