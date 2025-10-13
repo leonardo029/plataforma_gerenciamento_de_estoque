@@ -29,7 +29,7 @@ export class CreateTableProducts1760116849327 implements MigrationInterface {
           {
             name: 'description',
             type: 'varchar',
-            length: '45',
+            length: '255',
             isNullable: false,
           },
           {
