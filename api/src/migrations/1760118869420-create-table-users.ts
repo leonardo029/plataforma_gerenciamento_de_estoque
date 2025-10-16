@@ -43,6 +43,12 @@ export class CreateTableUsers1760118869420 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'is_activated',
+            type: 'boolean',
+            default: false,
+            isNullable: false,
+          },
+          {
             name: 'created_at',
             type: 'timestamptz',
             default: 'CURRENT_TIMESTAMP',
