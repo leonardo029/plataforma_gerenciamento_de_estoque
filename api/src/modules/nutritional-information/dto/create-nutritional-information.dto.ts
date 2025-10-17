@@ -1,10 +1,10 @@
 import {
   IsString,
-  IsNotEmpty,
   MaxLength,
   IsOptional,
-  IsInt,
+  IsNumber,
   IsBoolean,
+  IsNotEmpty,
 } from 'class-validator';
 
 export class CreateNutritionalInformationDto {
@@ -14,19 +14,19 @@ export class CreateNutritionalInformationDto {
   portion: string;
 
   @IsOptional()
-  @IsInt()
+  @IsNumber()
   carbohydrate?: number;
 
   @IsOptional()
-  @IsInt()
+  @IsNumber()
   protein?: number;
 
   @IsOptional()
-  @IsInt()
+  @IsNumber()
   totalFat?: number;
 
   @IsOptional()
-  @IsInt()
+  @IsNumber()
   fiber?: number;
 
   @IsBoolean()

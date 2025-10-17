@@ -13,16 +13,22 @@ export class NutritionalInformationEntity {
   @Column({ type: 'varchar', length: 20 })
   portion: string;
 
-  @Column({ type: 'integer', nullable: true })
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
   carbohydrate?: number;
 
-  @Column({ type: 'integer', nullable: true })
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
   protein?: number;
 
-  @Column({ type: 'integer', name: 'total_fat', nullable: true })
+  @Column({
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    name: 'total_fat',
+    nullable: true,
+  })
   totalFat?: number;
 
-  @Column({ type: 'integer', nullable: true })
+  @Column({ type: 'numeric', precision: 10, scale: 2, nullable: true })
   fiber?: number;
 
   @Column({ type: 'boolean', name: 'is_allergenic', default: false })
