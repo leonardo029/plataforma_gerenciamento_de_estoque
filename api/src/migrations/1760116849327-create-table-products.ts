@@ -45,7 +45,7 @@ export class CreateTableProducts1760116849327 implements MigrationInterface {
           {
             name: 'id_nutritional_information',
             type: 'uuid',
-            isNullable: false,
+            isNullable: true,
           },
           {
             name: 'unit_of_measurement',
