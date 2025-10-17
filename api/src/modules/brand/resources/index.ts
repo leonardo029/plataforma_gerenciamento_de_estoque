@@ -1,1 +1,1 @@
-export * from './find-all-or-by-id.resource';
+export * from './find-all.resource';

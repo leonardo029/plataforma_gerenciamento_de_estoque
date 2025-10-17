@@ -1,6 +1,6 @@
 import { BrandEntity } from '../entities';
 
-export class FindAllOrByIdBrandResource {
+export class FindAllBrandResource {
   [key: string]: any;
 
   constructor(entity: BrandEntity) {

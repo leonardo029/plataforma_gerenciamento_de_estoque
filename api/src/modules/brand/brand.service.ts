@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { BrandRepository } from './repositories';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateBrandDto, UpdateBrandDto } from './dto';
-import { FindAllOrByIdBrandResource } from './resources';
+import { FindAllBrandResource } from './resources';
 
 @Injectable()
 export class BrandService {
@@ -37,8 +37,8 @@ export class BrandService {
     await this.brandRepository.remove(brand);
   }
 
-  async findAll(): Promise<FindAllOrByIdBrandResource[]> {
+  async findAll(): Promise<FindAllBrandResource[]> {
     const brands = await this.brandRepository.find();
-    return brands.map((brand) => new FindAllOrByIdBrandResource(brand));
+    return brands.map((brand) => new FindAllBrandResource(brand));
   }
 }
