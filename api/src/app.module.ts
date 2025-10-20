@@ -9,6 +9,10 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 import { StateModule } from './modules/state/state.module';
 import { CityModule } from './modules/city/city.module';
+import { ProductModule } from './modules/product/product.module';
+import { BrandModule } from './modules/brand/brand.module';
+import { CategoryModule } from './modules/category/category.module';
+import { NutritionalInformationModule } from './modules/nutritional-information/nutritional-information.module';
 
 @Module({
   imports: [
@@ -32,6 +36,10 @@ import { CityModule } from './modules/city/city.module';
     AddressModule,
     StateModule,
     CityModule,
+    ProductModule,
+    BrandModule,
+    CategoryModule,
+    NutritionalInformationModule,
   ],
   controllers: [],
   providers: [],
