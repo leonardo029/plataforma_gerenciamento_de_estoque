@@ -13,6 +13,7 @@ import { ProductModule } from './modules/product/product.module';
 import { BrandModule } from './modules/brand/brand.module';
 import { CategoryModule } from './modules/category/category.module';
 import { NutritionalInformationModule } from './modules/nutritional-information/nutritional-information.module';
+import { SupplierModule } from './modules/supplier/supplier.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { NutritionalInformationModule } from './modules/nutritional-information/
     BrandModule,
     CategoryModule,
     NutritionalInformationModule,
+    SupplierModule,
   ],
   controllers: [],
   providers: [],
