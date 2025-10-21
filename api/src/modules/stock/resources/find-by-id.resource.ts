@@ -1,6 +1,6 @@
 import { StockEntity } from '../entities';
 
-export class FindByEmailUserResource {
+export class FindByIdStockResource {
   [key: string]: any;
 
   constructor(entity: StockEntity) {
