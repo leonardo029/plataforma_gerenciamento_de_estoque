@@ -14,6 +14,7 @@ import { BrandModule } from './modules/brand/brand.module';
 import { CategoryModule } from './modules/category/category.module';
 import { NutritionalInformationModule } from './modules/nutritional-information/nutritional-information.module';
 import { SupplierModule } from './modules/supplier/supplier.module';
+import { ProductAuditModule } from './modules/product-audit/product-audit.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
@@ -45,6 +46,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     CategoryModule,
     NutritionalInformationModule,
     SupplierModule,
+    ProductAuditModule,
     AuthModule,
   ],
   controllers: [],
