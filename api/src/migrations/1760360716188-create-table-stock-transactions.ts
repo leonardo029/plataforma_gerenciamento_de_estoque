@@ -1,12 +1,12 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateTableStockOutputs1760361808199
+export class CreateTableStockTransactions1760360716188
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'stock_outputs',
+        name: 'stock_transactions',
         columns: [
           {
             name: 'id',
@@ -17,7 +17,7 @@ export class CreateTableStockOutputs1760361808199
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'output_quantity',
+            name: 'quantity',
             type: 'integer',
             isNullable: false,
           },
@@ -32,6 +32,14 @@ export class CreateTableStockOutputs1760361808199
             isNullable: false,
           },
           {
+            name: 'action',
+            type: 'enum',
+            enumName: 'action_st_enum',
+            enum: ['I', 'O'],
+            isNullable: false,
+            //Enum types: INPUT and OUTPUT
+          },
+          {
             name: 'created_at',
             type: 'timestamptz',
             default: 'CURRENT_TIMESTAMP',
@@ -40,19 +48,19 @@ export class CreateTableStockOutputs1760361808199
         ],
         checks: [
           {
-            name: 'chk_so_output_quantity',
-            expression: 'output_quantity > 0',
+            name: 'chk_st_quantity',
+            expression: 'quantity > 0',
           },
         ],
         foreignKeys: [
           {
-            name: 'fk_so_id_stock',
+            name: 'fk_st_id_stock',
             columnNames: ['id_stock'],
             referencedColumnNames: ['id'],
             referencedTableName: 'stocks',
           },
           {
-            name: 'fk_so_id_user',
+            name: 'fk_st_id_user',
             columnNames: ['id_user'],
             referencedColumnNames: ['id'],
             referencedTableName: 'users',
@@ -64,6 +72,6 @@ export class CreateTableStockOutputs1760361808199
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('stock_outputs', true, true);
+    await queryRunner.dropTable('stock_transactions', true, true);
   }
 }
