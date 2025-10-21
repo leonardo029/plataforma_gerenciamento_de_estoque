@@ -21,6 +21,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { ShelfModule } from './modules/shelf/shelf.module';
 import { SectionModule } from './modules/section/section.module';
 import { CorridorModule } from './modules/corridor/corridor.module';
+import { StockLocationModule } from './modules/stock-location/stock-location.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { CorridorModule } from './modules/corridor/corridor.module';
     ShelfModule,
     SectionModule,
     CorridorModule,
+    StockLocationModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
