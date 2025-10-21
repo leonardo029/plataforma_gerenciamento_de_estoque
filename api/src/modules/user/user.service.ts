@@ -1,7 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './repositories';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindAllUserResource, FindByIdUserResource } from './resources';
+import {
+  FindAllUserResource,
+  FindByEmailUserResource,
+  FindByIdUserResource,
+} from './resources';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { ContactService } from '../contact/contact.service';
 import { AddressService } from '../address/address.service';
@@ -102,5 +106,17 @@ export class UserService {
       relations: ['address', 'contact'],
     });
     return users.map((user) => new FindAllUserResource(user));
+  }
+
+  async findByEmail(email: string): Promise<FindByEmailUserResource> {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new Error(`Email address or password is incorrect`);
+    }
+
+    return new FindByEmailUserResource(user);
   }
 }
