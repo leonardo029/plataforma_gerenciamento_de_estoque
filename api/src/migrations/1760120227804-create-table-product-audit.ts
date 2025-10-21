@@ -29,7 +29,7 @@ export class CreateTableProductAudit1760120227804
           {
             name: 'action',
             type: 'enum',
-            enumName: 'action_enum',
+            enumName: 'action_pa_enum',
             enum: ['C', 'U', 'D'],
             isNullable: false,
             //Enum types: CREATE, UPDATE and DELETE

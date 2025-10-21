@@ -32,7 +32,7 @@ export class ProductAuditEntity {
   @Column({
     type: 'enum',
     enum: ActionType,
-    enumName: 'action_enum',
+    enumName: 'action_pa_enum',
   })
   action: ActionType;
 
