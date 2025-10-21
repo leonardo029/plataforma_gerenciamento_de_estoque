@@ -18,6 +18,7 @@ import { ProductAuditModule } from './modules/product-audit/product-audit.module
 import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { ShelfModule } from './modules/shelf/shelf.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     SupplierModule,
     ProductAuditModule,
     AuthModule,
+    ShelfModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
