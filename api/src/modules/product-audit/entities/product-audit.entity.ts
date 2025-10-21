@@ -4,9 +4,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { ActionType } from '../types/action-type';
 
@@ -15,9 +15,15 @@ export class ProductAuditEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => ProductEntity)
+  @Column({ name: 'id_product', type: 'uuid' })
+  idProduct: string;
+
+  @ManyToOne(() => ProductEntity, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'id_product' })
   product: ProductEntity;
+
+  @Column({ name: 'id_user', type: 'uuid' })
+  idUser: string;
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'id_user' })

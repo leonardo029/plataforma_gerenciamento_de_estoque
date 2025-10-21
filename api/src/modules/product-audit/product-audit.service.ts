@@ -9,9 +9,12 @@ export class ProductAuditService {
   private readonly productAuditRepository: ProductAuditRepository;
 
   async create(createProductAuditDto: CreateProductAuditDto): Promise<void> {
-    const productAudit = this.productAuditRepository.create(
-      createProductAuditDto,
-    );
+    const productAudit = this.productAuditRepository.create({
+      idProduct: createProductAuditDto.id_product,
+      idUser: createProductAuditDto.id_user,
+      action: createProductAuditDto.action,
+      description: createProductAuditDto.description,
+    });
     await this.productAuditRepository.save(productAudit);
   }
 }
