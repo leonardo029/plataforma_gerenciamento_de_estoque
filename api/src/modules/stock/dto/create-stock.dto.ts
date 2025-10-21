@@ -1,12 +1,17 @@
+import { Type } from 'class-transformer';
 import {
   IsDateString,
+  IsDefined,
   IsInt,
   IsNumber,
+  IsObject,
   IsString,
   IsUUID,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
+import { CreateStockLocationDto } from 'src/modules/stock-location/dto';
 
 export class CreateStockDto {
   @IsUUID()
@@ -34,6 +39,9 @@ export class CreateStockDto {
   @Min(0)
   stock_quantity: number;
 
-  @IsUUID()
-  stock_location_id: string;
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => CreateStockLocationDto)
+  stock_location: CreateStockLocationDto;
 }

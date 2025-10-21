@@ -5,9 +5,14 @@ import { StockRepository } from './repositories';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StockEntity } from './entities';
 import { StockLocationModule } from '../stock-location/stock-location.module';
+import { StockTransactionModule } from '../stock-transaction/stock-transaction.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([StockEntity]), StockLocationModule],
+  imports: [
+    TypeOrmModule.forFeature([StockEntity]),
+    StockLocationModule,
+    StockTransactionModule,
+  ],
   controllers: [StockController],
   providers: [StockService, StockRepository],
   exports: [StockService],
