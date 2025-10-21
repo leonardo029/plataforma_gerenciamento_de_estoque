@@ -23,6 +23,7 @@ import { SectionModule } from './modules/section/section.module';
 import { CorridorModule } from './modules/corridor/corridor.module';
 import { StockLocationModule } from './modules/stock-location/stock-location.module';
 import { StockModule } from './modules/stock/stock.module';
+import { StockTransactionModule } from './modules/stock-transaction/stock-transaction.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { StockModule } from './modules/stock/stock.module';
     CorridorModule,
     StockLocationModule,
     StockModule,
+    StockTransactionModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
