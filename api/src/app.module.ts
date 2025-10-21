@@ -22,6 +22,7 @@ import { ShelfModule } from './modules/shelf/shelf.module';
 import { SectionModule } from './modules/section/section.module';
 import { CorridorModule } from './modules/corridor/corridor.module';
 import { StockLocationModule } from './modules/stock-location/stock-location.module';
+import { StockModule } from './modules/stock/stock.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { StockLocationModule } from './modules/stock-location/stock-location.mod
     SectionModule,
     CorridorModule,
     StockLocationModule,
+    StockModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
