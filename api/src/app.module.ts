@@ -24,6 +24,7 @@ import { CorridorModule } from './modules/corridor/corridor.module';
 import { StockLocationModule } from './modules/stock-location/stock-location.module';
 import { StockModule } from './modules/stock/stock.module';
 import { StockTransactionModule } from './modules/stock-transaction/stock-transaction.module';
+import { ProductSupplierModule } from './modules/product-supplier/product-supplier.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { StockTransactionModule } from './modules/stock-transaction/stock-transa
     StockLocationModule,
     StockModule,
     StockTransactionModule,
+    ProductSupplierModule,
   ],
   controllers: [],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
