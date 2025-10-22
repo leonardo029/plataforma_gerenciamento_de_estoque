@@ -11,9 +11,21 @@ export class ProductSupplierService {
   async create(
     createProductSupplierDto: CreateProductSupplierDto,
   ): Promise<void> {
-    const productAudit = this.productSupplierRepository.create(
-      createProductSupplierDto,
-    );
-    await this.productSupplierRepository.save(productAudit);
+    try {
+      const { supplier_id, product_id } = createProductSupplierDto;
+
+      const exists = await this.productSupplierRepository.findOne({
+        where: { supplier_id, product_id },
+      });
+
+      if (!exists) {
+        const entity = this.productSupplierRepository.create(
+          createProductSupplierDto,
+        );
+        await this.productSupplierRepository.save(entity);
+      }
+    } catch (error) {
+      throw new Error(`Erro ao criar relação produto-fornecedor: ${error}`);
+    }
   }
 }

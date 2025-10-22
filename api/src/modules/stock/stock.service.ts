@@ -8,6 +8,8 @@ import { StockRepository } from './repositories';
 import { ActionType } from '../stock-transaction/types';
 import { StockTransactionService } from '../stock-transaction/stock-transaction.service';
 import { CreateStockLocationDto } from '../stock-location/dto';
+import { ProductSupplierService } from '../product-supplier/product-supplier.service';
+import { CreateProductSupplierDto } from '../product-supplier/dto';
 @Injectable()
 export class StockService {
   @InjectRepository(StockRepository)
@@ -18,6 +20,9 @@ export class StockService {
 
   @Inject(StockTransactionService)
   private readonly stockTransactionService: StockTransactionService;
+
+  @Inject(ProductSupplierService)
+  private readonly productSupplierService: ProductSupplierService;
 
   @Transactional()
   async create(createStockDto: CreateStockDto, id: string): Promise<void> {
@@ -41,5 +46,11 @@ export class StockService {
       action: ActionType.INPUT,
     };
     await this.stockTransactionService.create(infosTransaction);
+
+    const infosProductSupplier: CreateProductSupplierDto = {
+      supplier_id: stock.supplier_id,
+      product_id: stock.product_id,
+    };
+    await this.productSupplierService.create(infosProductSupplier);
   }
 }
