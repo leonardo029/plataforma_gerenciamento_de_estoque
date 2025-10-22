@@ -5,6 +5,7 @@ import {
   IsInt,
   IsNumber,
   IsObject,
+  IsPositive,
   IsString,
   IsUUID,
   MaxLength,
@@ -36,6 +37,7 @@ export class CreateStockDto {
   supplier_id: string;
 
   @IsInt()
+  @IsPositive()
   @Min(0)
   stock_quantity: number;
 

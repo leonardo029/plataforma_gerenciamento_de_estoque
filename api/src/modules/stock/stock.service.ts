@@ -1,9 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { StockLocationService } from '../stock-location/stock-location.service';
 import { CreateStockTransactionDto } from '../stock-transaction/dto';
-import { CreateStockDto } from './dto';
+import { CreateStockDto, RemoveStockDto } from './dto';
 import { StockRepository } from './repositories';
 import { ActionType } from '../stock-transaction/types';
 import { StockTransactionService } from '../stock-transaction/stock-transaction.service';
@@ -52,5 +57,34 @@ export class StockService {
       product_id: stock.product_id,
     };
     await this.productSupplierService.create(infosProductSupplier);
+  }
+
+  @Transactional()
+  async remove(removeStockDto: RemoveStockDto, id: string): Promise<void> {
+    const stock = await this.stockRepository.findOne({
+      where: { id: removeStockDto.stock_id },
+    });
+
+    if (!stock) {
+      throw new NotFoundException(`Stock with ID ${id} not found`);
+    }
+
+    if (removeStockDto.stock_quantity > stock.stock_quantity) {
+      throw new ConflictException(
+        `Quantity in stock is less than the desired withdrawal quantity`,
+      );
+    }
+
+    stock.stock_quantity -= removeStockDto.stock_quantity;
+
+    await this.stockRepository.save(stock);
+
+    const infosTransaction: CreateStockTransactionDto = {
+      quantity: removeStockDto.stock_quantity,
+      user_id: id,
+      stock_id: removeStockDto.stock_id,
+      action: ActionType.OUTPUT,
+    };
+    await this.stockTransactionService.create(infosTransaction);
   }
 }
