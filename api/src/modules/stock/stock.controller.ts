@@ -1,4 +1,12 @@
-import { Body, Controller, Inject, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserEntity } from '../user/entities';
 import { CreateStockDto, RemoveStockDto } from './dto';
@@ -23,5 +31,15 @@ export class StockController {
     @CurrentUser() user: UserEntity,
   ) {
     return this.stockService.remove(removeStockDto, user.id);
+  }
+
+  @Get()
+  findAll() {
+    return this.stockService.findAll();
+  }
+
+  @Get(':id')
+  findById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return this.stockService.findById(id);
   }
 }

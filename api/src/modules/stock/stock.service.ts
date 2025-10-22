@@ -15,6 +15,7 @@ import { StockTransactionService } from '../stock-transaction/stock-transaction.
 import { CreateStockLocationDto } from '../stock-location/dto';
 import { ProductSupplierService } from '../product-supplier/product-supplier.service';
 import { CreateProductSupplierDto } from '../product-supplier/dto';
+import { FindAllStockResource, FindByIdStockResource } from './resources';
 @Injectable()
 export class StockService {
   @InjectRepository(StockRepository)
@@ -86,5 +87,34 @@ export class StockService {
       action: ActionType.OUTPUT,
     };
     await this.stockTransactionService.create(infosTransaction);
+  }
+
+  async findById(id: string): Promise<FindByIdStockResource> {
+    const stock = await this.stockRepository.findOne({
+      where: { id },
+      relations: [
+        'supplier',
+        'stockLocation',
+        'stockLocation.shelf',
+        'stockLocation.corridor',
+        'stockLocation.section',
+        'product',
+        'product.brand',
+        'product.category',
+      ],
+    });
+
+    if (!stock) {
+      throw new NotFoundException(`Stock with ID ${id} not found`);
+    }
+
+    return new FindByIdStockResource(stock);
+  }
+
+  async findAll(): Promise<FindAllStockResource[]> {
+    const stocks = await this.stockRepository.find({
+      relations: ['product'],
+    });
+    return stocks.map((stock) => new FindAllStockResource(stock));
   }
 }
