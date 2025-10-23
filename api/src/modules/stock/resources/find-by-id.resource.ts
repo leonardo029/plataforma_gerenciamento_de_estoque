@@ -35,6 +35,5 @@ export class FindByIdStockResource {
       corridor: entity.stockLocation.corridor.name,
       section: entity.stockLocation.section.name,
     };
-    this.is_activated = entity.isActivated;
   }
 }

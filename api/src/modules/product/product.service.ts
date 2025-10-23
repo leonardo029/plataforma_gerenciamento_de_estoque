@@ -122,7 +122,9 @@ export class ProductService {
   }
 
   async findAll(filters: FilterProductDto): Promise<FindAllProductResource[]> {
-    const where: FindOptionsWhere<ProductEntity> = {};
+    const where: FindOptionsWhere<ProductEntity> = {
+      isActivated: true,
+    };
 
     if (filters.name) {
       where.name = ILike(`%${filters.name}%`);

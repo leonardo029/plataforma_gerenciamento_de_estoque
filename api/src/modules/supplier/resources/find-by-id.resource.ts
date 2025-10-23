@@ -28,6 +28,5 @@ export class FindByIdSupplierResource {
       ddd: entity.contact.ddd,
       phoneNumber: entity.contact.phone_number,
     };
-    this.isActivated = entity.isActivated;
   }
 }

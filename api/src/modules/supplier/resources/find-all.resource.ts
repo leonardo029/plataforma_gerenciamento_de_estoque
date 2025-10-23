@@ -7,6 +7,5 @@ export class FindAllSupplierResource {
     this.id = entity.id;
     this.name = entity.name;
     this.email = entity.email;
-    this.isActivated = entity.isActivated;
   }
 }

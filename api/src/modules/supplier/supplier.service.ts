@@ -102,6 +102,7 @@ export class SupplierService {
 
   async findAll(): Promise<FindAllSupplierResource[]> {
     const suppliers = await this.supplierRepository.find({
+      where: { isActivated: true },
       relations: ['address', 'contact'],
     });
     return suppliers.map((supplier) => new FindAllSupplierResource(supplier));

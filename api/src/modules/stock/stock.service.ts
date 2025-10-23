@@ -195,6 +195,7 @@ export class StockService {
 
   async findAll(): Promise<FindAllStockResource[]> {
     const stocks = await this.stockRepository.find({
+      where: { isActivated: true },
       relations: ['product'],
     });
     return stocks.map((stock) => new FindAllStockResource(stock));

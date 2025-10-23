@@ -13,6 +13,5 @@ export class FindAllStockResource {
       name: entity.product.name,
       identification_code: entity.product.identificationCode,
     };
-    this.is_activated = entity.isActivated;
   }
 }
