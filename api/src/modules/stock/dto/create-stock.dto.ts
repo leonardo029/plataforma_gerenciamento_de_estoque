@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsDateString,
   IsDefined,
   IsInt,
@@ -40,6 +41,9 @@ export class CreateStockDto {
   @IsPositive()
   @Min(0)
   stock_quantity: number;
+
+  @IsBoolean()
+  isActivated: boolean;
 
   @IsDefined()
   @IsObject()

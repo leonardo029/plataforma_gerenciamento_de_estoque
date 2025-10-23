@@ -30,10 +30,11 @@ export class FindByIdStockResource {
       name: entity.supplier.name,
       email: entity.supplier.email,
     };
-    this.stockLocation = {
+    this.stock_location = {
       shelf: entity.stockLocation.shelf.name,
       corridor: entity.stockLocation.corridor.name,
       section: entity.stockLocation.section.name,
     };
+    this.is_activated = entity.isActivated;
   }
 }

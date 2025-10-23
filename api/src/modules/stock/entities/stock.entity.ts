@@ -42,8 +42,15 @@ export class StockEntity {
   @Column({ type: 'integer' })
   stock_quantity: number;
 
-  @Column({ name: 'id_stock_location', type: 'uuid' })
+  @Column({
+    name: 'id_stock_location',
+    type: 'uuid',
+    nullable: true,
+  })
   stock_location_id: string;
+
+  @Column({ name: 'is_activated', type: 'boolean', default: false })
+  isActivated: boolean;
 
   @CreateDateColumn({
     type: 'timestamp',
@@ -56,7 +63,10 @@ export class StockEntity {
   @JoinColumn({ name: 'id_supplier' })
   supplier: SupplierEntity;
 
-  @ManyToOne(() => StockLocationEntity, { nullable: false })
+  @ManyToOne(() => StockLocationEntity, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'id_stock_location' })
   stockLocation: StockLocationEntity;
 

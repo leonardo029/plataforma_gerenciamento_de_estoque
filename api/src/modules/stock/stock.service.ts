@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { StockLocationService } from '../stock-location/stock-location.service';
 import { CreateStockTransactionDto } from '../stock-transaction/dto';
-import { CreateStockDto, RemoveStockDto } from './dto';
+import { CreateStockDto, RemoveStockDto, UpdateStockDto } from './dto';
 import { StockRepository } from './repositories';
 import { ActionType } from '../stock-transaction/types';
 import { StockTransactionService } from '../stock-transaction/stock-transaction.service';
@@ -16,6 +16,7 @@ import { CreateStockLocationDto } from '../stock-location/dto';
 import { ProductSupplierService } from '../product-supplier/product-supplier.service';
 import { CreateProductSupplierDto } from '../product-supplier/dto';
 import { FindAllStockResource, FindByIdStockResource } from './resources';
+import { SupplierService } from '../supplier/supplier.service';
 @Injectable()
 export class StockService {
   @InjectRepository(StockRepository)
@@ -29,6 +30,9 @@ export class StockService {
 
   @Inject(ProductSupplierService)
   private readonly productSupplierService: ProductSupplierService;
+
+  @Inject(SupplierService)
+  private readonly supplierService: SupplierService;
 
   @Transactional()
   async create(createStockDto: CreateStockDto, id: string): Promise<void> {
@@ -50,6 +54,7 @@ export class StockService {
       user_id: id,
       stock_id: stock.id,
       action: ActionType.INPUT,
+      description: `Entry of ${stock.product_id} product into stock`,
     };
     await this.stockTransactionService.create(infosTransaction);
 
@@ -85,6 +90,83 @@ export class StockService {
       user_id: id,
       stock_id: removeStockDto.stock_id,
       action: ActionType.OUTPUT,
+      description: `Withdraw of ${removeStockDto.stock_quantity} units of ${stock.product_id} from stock`,
+    };
+    await this.stockTransactionService.create(infosTransaction);
+  }
+
+  @Transactional()
+  async update(
+    id: string,
+    updateStockDto: UpdateStockDto,
+    userId: string,
+  ): Promise<void> {
+    const stock = await this.stockRepository.findOne({
+      where: { id },
+      relations: ['supplier', 'stockLocation'],
+    });
+
+    if (!stock) {
+      throw new NotFoundException(`Stock with ID ${id} not found`);
+    }
+
+    const { supplier_id, stock_location, ...stockData } = updateStockDto;
+
+    Object.assign(stock, stockData);
+
+    if (supplier_id) {
+      const supplier = await this.supplierService.findById(supplier_id);
+      if (!supplier) {
+        throw new NotFoundException(
+          `Supplier with ID ${supplier_id} not found`,
+        );
+      }
+      stock.supplier_id = supplier.id as string;
+    }
+
+    if (stock_location) {
+      const updatedLocation = await this.stockLocationService.update(
+        stock.stockLocation?.id,
+        stock_location,
+      );
+      stock.stockLocation = updatedLocation;
+    }
+
+    await this.stockRepository.save(stock);
+
+    const infosTransaction: CreateStockTransactionDto = {
+      quantity: stockData.stock_quantity,
+      user_id: userId,
+      stock_id: stock.id,
+      action: ActionType.UPDATE,
+      description: `Update of ${stock.id} stock characteristics`,
+    };
+    await this.stockTransactionService.create(infosTransaction);
+  }
+
+  @Transactional()
+  async delete(id: string, userId: string): Promise<void> {
+    const stock = await this.stockRepository.findOne({
+      where: { id },
+      relations: ['stockLocation'],
+    });
+
+    if (!stock) {
+      throw new NotFoundException(`Stock with ID ${id} not found`);
+    }
+
+    stock.isActivated = false;
+    await this.stockRepository.save(stock);
+
+    if (stock.stockLocation) {
+      await this.stockLocationService.delete(stock.stockLocation.id);
+    }
+
+    const infosTransaction: CreateStockTransactionDto = {
+      user_id: userId,
+      stock_id: stock.id,
+      action: ActionType.DELETE,
+      description: `Soft delete of ${stock.id} stock item`,
     };
     await this.stockTransactionService.create(infosTransaction);
   }

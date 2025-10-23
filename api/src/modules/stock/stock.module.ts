@@ -7,6 +7,7 @@ import { StockEntity } from './entities';
 import { StockLocationModule } from '../stock-location/stock-location.module';
 import { StockTransactionModule } from '../stock-transaction/stock-transaction.module';
 import { ProductSupplierModule } from '../product-supplier/product-supplier.module';
+import { SupplierModule } from '../supplier/supplier.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ProductSupplierModule } from '../product-supplier/product-supplier.modu
     StockLocationModule,
     StockTransactionModule,
     ProductSupplierModule,
+    SupplierModule,
   ],
   controllers: [StockController],
   providers: [StockService, StockRepository],
