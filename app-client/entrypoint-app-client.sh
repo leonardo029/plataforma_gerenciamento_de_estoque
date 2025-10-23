@@ -11,4 +11,4 @@ npm run build
 
 # Servindo os arquivos estáticos
 echo "Servindo aplicação Vue na porta 8080..."
-http-server dist -p 8080
+npm run dev -- --host 0.0.0.0 --port 8080
