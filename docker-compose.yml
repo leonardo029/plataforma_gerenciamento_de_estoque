@@ -41,6 +41,22 @@ services:
     depends_on:
       - db-server
 
+  app-client:
+    build:
+      dockerfile: "./docker/app-client-server/app-client-server.dockerfile"
+      context: .
+    restart: always
+    container_name: app-client
+    entrypoint: ./entrypoint-app-client.sh
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app-client:/var/www/app
+    networks:
+      - rede-gerenciamento-estoque
+    depends_on:
+      - api-server
+
 networks:
   rede-gerenciamento-estoque:
     driver: bridge
