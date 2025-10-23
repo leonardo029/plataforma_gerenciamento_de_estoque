@@ -9,24 +9,29 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { IsPublic, Roles } from '../auth/decorators';
 import { CreateUserDto, UpdateUserDto } from './dto';
+import { UserRoleType } from './types';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
   @Inject(UserService)
   private readonly userService: UserService;
 
+  @IsPublic()
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
+  @Roles(UserRoleType.ADMIN)
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
+  @Roles(UserRoleType.ADMIN)
   @Patch(':id')
   update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,

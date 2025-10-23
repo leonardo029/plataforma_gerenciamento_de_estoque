@@ -9,9 +9,11 @@ import {
   IsDefined,
   IsObject,
   IsBoolean,
+  IsEnum,
 } from 'class-validator';
 import { CreateAddressDto } from 'src/modules/address/dto';
 import { CreateContactDto } from 'src/modules/contact/dto';
+import { UserRoleType } from '../types';
 
 export class CreateUserDto {
   @IsString()
@@ -42,4 +44,7 @@ export class CreateUserDto {
   @ValidateNested()
   @Type(() => CreateAddressDto)
   address: CreateAddressDto;
+
+  @IsEnum(UserRoleType)
+  action: UserRoleType;
 }

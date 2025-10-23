@@ -43,6 +43,13 @@ export class CreateTableUsers1760118869420 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'role',
+            type: 'enum',
+            enumName: 'role_usr_enum',
+            enum: ['admin', 'user'],
+            isNullable: false,
+          },
+          {
             name: 'is_activated',
             type: 'boolean',
             default: false,
