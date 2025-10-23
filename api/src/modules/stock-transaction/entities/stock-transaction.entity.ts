@@ -17,8 +17,8 @@ export class StockTransactionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'integer' })
-  quantity: number;
+  @Column({ type: 'integer', nullable: true })
+  quantity?: number;
 
   @Column({ name: 'id_user', type: 'uuid' })
   user_id: string;
@@ -32,6 +32,9 @@ export class StockTransactionEntity {
     enumName: 'action_st_enum',
   })
   action: ActionType;
+
+  @Column({ type: 'varchar', length: 255 })
+  description: string;
 
   @CreateDateColumn({
     type: 'timestamptz',

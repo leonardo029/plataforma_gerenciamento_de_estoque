@@ -39,7 +39,7 @@ export class StockLocationService {
   async update(
     id: string,
     updateStockLocationDto: UpdateStockLocationDto,
-  ): Promise<void> {
+  ): Promise<StockLocationEntity> {
     const stockLocation = await this.stockLocationRepository.findOne({
       where: { id },
     });
@@ -49,7 +49,7 @@ export class StockLocationService {
     }
 
     Object.assign(stockLocation, updateStockLocationDto);
-    await this.stockLocationRepository.save(stockLocation);
+    return await this.stockLocationRepository.save(stockLocation);
   }
 
   async delete(id: string): Promise<void> {

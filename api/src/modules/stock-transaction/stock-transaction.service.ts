@@ -16,6 +16,7 @@ export class StockTransactionService {
       user_id: createStockTransactionDto.user_id,
       stock_id: createStockTransactionDto.stock_id,
       action: createStockTransactionDto.action,
+      description: createStockTransactionDto.description,
     });
     await this.stockTransactionRepository.save(stockTransaction);
   }

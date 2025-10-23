@@ -19,7 +19,7 @@ export class CreateTableStockTransactions1760360716188
           {
             name: 'quantity',
             type: 'integer',
-            isNullable: false,
+            isNullable: true,
           },
           {
             name: 'id_user',
@@ -35,9 +35,15 @@ export class CreateTableStockTransactions1760360716188
             name: 'action',
             type: 'enum',
             enumName: 'action_st_enum',
-            enum: ['I', 'O'],
+            enum: ['I', 'O', 'U', 'D'],
             isNullable: false,
-            //Enum types: INPUT and OUTPUT
+            //Enum types: INPUT, OUTPUT, UPDATE and DELETE
+          },
+          {
+            name: 'description',
+            type: 'varchar',
+            length: '255',
+            isNullable: false,
           },
           {
             name: 'created_at',
