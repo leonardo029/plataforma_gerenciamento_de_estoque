@@ -57,6 +57,12 @@ export class CreateTableStocks1760122492162 implements MigrationInterface {
           {
             name: 'id_stock_location',
             type: 'uuid',
+            isNullable: true,
+          },
+          {
+            name: 'is_activated',
+            type: 'boolean',
+            default: false,
             isNullable: false,
           },
           {
@@ -98,6 +104,7 @@ export class CreateTableStocks1760122492162 implements MigrationInterface {
             columnNames: ['id_stock_location'],
             referencedColumnNames: ['id'],
             referencedTableName: 'stock_locations',
+            onDelete: 'SET NULL',
           },
           {
             name: 'fk_stc_id_product',

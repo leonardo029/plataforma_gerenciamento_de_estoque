@@ -27,13 +27,19 @@ export class CreateTableSuppliers1760119761674 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'id_address',
+            type: 'uuid',
+            isNullable: false,
+          },
+          {
             name: 'id_contact',
             type: 'uuid',
             isNullable: false,
           },
           {
-            name: 'id_address',
-            type: 'uuid',
+            name: 'is_activated',
+            type: 'boolean',
+            default: false,
             isNullable: false,
           },
           {

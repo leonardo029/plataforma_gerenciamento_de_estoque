@@ -49,6 +49,9 @@ export class ProductEntity {
   @Column({ type: 'varchar', length: 45, name: 'unit_of_measurement' })
   unitOfMeasurement: string;
 
+  @Column({ name: 'is_activated', type: 'boolean', default: true })
+  isActivated: boolean;
+
   @CreateDateColumn({
     type: 'timestamptz',
     name: 'created_at',

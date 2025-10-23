@@ -32,6 +32,7 @@ services:
       DB_USER: "${DB_USER}"
       DB_PASSWORD: "${DB_PASSWORD}"
       DB_NAME: "${DB_NAME}"
+      JWT_SECRET: "${JWT_SECRET}"
     volumes:
       - ./api:/var/www/app
       - /tmp:/tmp
@@ -39,6 +40,22 @@ services:
       - rede-gerenciamento-estoque
     depends_on:
       - db-server
+
+  app-client:
+    build:
+      dockerfile: "./docker/app-client-server/app-client-server.dockerfile"
+      context: .
+    restart: always
+    container_name: app-client
+    entrypoint: ./entrypoint-app-client.sh
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app-client:/var/www/app
+    networks:
+      - rede-gerenciamento-estoque
+    depends_on:
+      - api-server
 
 networks:
   rede-gerenciamento-estoque:

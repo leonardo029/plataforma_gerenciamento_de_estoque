@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsOptional,
   IsString,
   IsUUID,
@@ -41,4 +42,8 @@ export class UpdateProductDto {
   @IsString()
   @MaxLength(45)
   unitOfMeasurement?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isActivated: boolean;
 }

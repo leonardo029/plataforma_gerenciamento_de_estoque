@@ -54,6 +54,12 @@ export class CreateTableProducts1760116849327 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'is_activated',
+            type: 'boolean',
+            default: false,
+            isNullable: false,
+          },
+          {
             name: 'created_at',
             type: 'timestamptz',
             default: 'CURRENT_TIMESTAMP',

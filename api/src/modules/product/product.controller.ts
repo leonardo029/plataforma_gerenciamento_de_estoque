@@ -12,6 +12,8 @@ import {
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto, FilterProductDto, UpdateProductDto } from './dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { UserEntity } from '../user/entities';
 
 @Controller('product')
 export class ProductController {
@@ -19,8 +21,11 @@ export class ProductController {
   private readonly productService: ProductService;
 
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
+  create(
+    @Body() createProductDto: CreateProductDto,
+    @CurrentUser() user: UserEntity,
+  ) {
+    return this.productService.create(createProductDto, user.id);
   }
 
   @Get()
@@ -32,8 +37,9 @@ export class ProductController {
   update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
     @Body() updateProductDto: UpdateProductDto,
+    @CurrentUser() user: UserEntity,
   ) {
-    return this.productService.update(id, updateProductDto);
+    return this.productService.update(id, updateProductDto, user.id);
   }
 
   @Get(':id')
@@ -42,7 +48,10 @@ export class ProductController {
   }
 
   @Delete(':id')
-  delete(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    return this.productService.delete(id);
+  delete(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @CurrentUser() user: UserEntity,
+  ) {
+    return this.productService.delete(id, user.id);
   }
 }

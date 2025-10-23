@@ -7,6 +7,7 @@ import {
   IsDefined,
   IsObject,
   ValidateNested,
+  IsBoolean,
 } from 'class-validator';
 import { CreateNutritionalInformationDto } from 'src/modules/nutritional-information/dto';
 
@@ -44,4 +45,7 @@ export class CreateProductDto {
   @IsNotEmpty()
   @MaxLength(45)
   unitOfMeasurement: string;
+
+  @IsBoolean()
+  isActivated: boolean;
 }

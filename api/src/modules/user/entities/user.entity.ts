@@ -13,6 +13,7 @@ import {
   BeforeUpdate,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UserRoleType } from '../types';
 
 @Entity('users')
 @Unique('un_usr_email', ['email'])
@@ -45,6 +46,12 @@ export class UserEntity {
   @OneToOne(() => ContactEntity)
   @JoinColumn({ name: 'id_contact' })
   contact: ContactEntity;
+
+  @Column({
+    type: 'enum',
+    enum: UserRoleType,
+  })
+  role: UserRoleType;
 
   @CreateDateColumn({
     type: 'timestamptz',
