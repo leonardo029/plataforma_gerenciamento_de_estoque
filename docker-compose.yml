@@ -1,0 +1,62 @@
+services:
+  db-server:
+    build:
+      dockerfile: "./docker/db-server/db-server.dockerfile"
+      context: .
+    container_name: db-server
+    restart: always
+    environment:
+      POSTGRES_DB: "${DB_NAME}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    ports:
+      - "54321:5432"
+    volumes:
+      - ./docker/db-server/dump-initial.sql:/docker-entrypoint-initdb.d/dump-initial.sql
+      - ./docker/db-server/db-volume:/var/lib/postgresql/data
+    networks:
+      - rede-gerenciamento-estoque
+
+  api-server:
+    build:
+      dockerfile: "./docker/api-server/api-server.dockerfile"
+      context: .
+    restart: always
+    container_name: api-server
+    entrypoint: ./entrypoint-api.sh
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db-server
+      DB_PORT: 5432
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${DB_NAME}"
+      JWT_SECRET: "${JWT_SECRET}"
+    volumes:
+      - ./api:/var/www/app
+      - /tmp:/tmp
+    networks:
+      - rede-gerenciamento-estoque
+    depends_on:
+      - db-server
+
+  app-client:
+    build:
+      dockerfile: "./docker/app-client-server/app-client-server.dockerfile"
+      context: .
+    restart: always
+    container_name: app-client
+    entrypoint: ./entrypoint-app-client.sh
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./app-client:/var/www/app
+    networks:
+      - rede-gerenciamento-estoque
+    depends_on:
+      - api-server
+
+networks:
+  rede-gerenciamento-estoque:
+    driver: bridge
