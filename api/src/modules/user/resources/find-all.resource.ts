@@ -7,6 +7,7 @@ export class FindAllUserResource {
     this.id = entity.id;
     this.name = entity.name;
     this.email = entity.email;
+    this.role = entity.role;
     this.isActivated = entity.isActivated;
   }
 }

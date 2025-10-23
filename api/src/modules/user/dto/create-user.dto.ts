@@ -46,5 +46,5 @@ export class CreateUserDto {
   address: CreateAddressDto;
 
   @IsEnum(UserRoleType)
-  action: UserRoleType;
+  role: UserRoleType;
 }

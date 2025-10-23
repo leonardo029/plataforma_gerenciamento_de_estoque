@@ -7,6 +7,7 @@ export class FindByIdUserResource {
     this.id = entity.id;
     this.name = entity.name;
     this.email = entity.email;
+    this.role = entity.role;
     this.address = {
       street: entity.address.street,
       streetType: entity.address.streetType.name,
