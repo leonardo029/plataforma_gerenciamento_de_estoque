@@ -29,24 +29,37 @@
           class="mt-4"
           color="primary"
           :disabled="!isValid"
+          :loading="isLoading"
           type="submit"
         >
           Entrar
         </v-btn>
+
+        <AppSnackbar
+          v-model="snackbarVisible"
+          :message="snackbarMessage"
+          :type="snackbarType"
+        />
       </v-form>
     </v-card>
   </v-container>
 </template>
 
 <script>
+import { useAuthStore } from '@/stores/auth'
+import AppSnackbar from '@/components/AppSnackbar.vue'
 export default {
   name: "LoginView",
+  components: { AppSnackbar },
 
   data() {
     return {
       email: "",
       password: "",
       isValid: false,
+      snackbarVisible: false,
+      snackbarMessage: "",
+      snackbarType: "info",
       rules: {
         required: (v) => !!v || "Campo obrigatório",
         email: (v) => /.+@.+\..+/.test(v) || "E-mail inválido",
@@ -54,14 +67,35 @@ export default {
     };
   },
 
+  computed: {
+    authStore() { return useAuthStore() },
+    authError() { return this.authStore.error },
+    isLoading() { return this.authStore.loading },
+  },
+
+  watch: {
+    authError(newVal) {
+      if (newVal) {
+        const msg = Array.isArray(newVal) ? newVal.join(', ') : newVal
+        this.snackbarMessage = msg
+        this.snackbarType = 'error'
+        this.snackbarVisible = true
+      }
+    },
+    snackbarVisible(val) {
+      if (!val) {
+        this.authStore.error = null
+      }
+    }
+  },
+
   methods: {
-    onSubmit() {
+    async onSubmit() {
       if (this.$refs.form.validate()) {
-        console.log("Login enviado:", {
-          email: this.email,
-          password: this.password,
-        });
-        // Aqui você pode chamar sua API de autenticação
+        const ok = await this.authStore.login(this.email, this.password)
+        if (ok) {
+          this.$router.push('/dashboard')
+        }
       }
     },
   },
