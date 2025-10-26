@@ -21,6 +21,12 @@ const routes = [
     component: () => import("@/pages/dashboard/index.vue"),
     meta: { layout: 'default'}
   },
+  {
+    name: "Products",
+    path: "/products",
+    component: () => import("@/pages/products/index.vue"),
+    meta: { layout: 'default'}
+  },
 ];
 
 const router = createRouter({

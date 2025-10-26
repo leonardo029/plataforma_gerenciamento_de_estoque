@@ -6,6 +6,11 @@
         title="Dashboard"
         prepend-icon="mdi-view-dashboard"
       />
+      <v-list-item
+        to="/products"
+        title="Produtos"
+        prepend-icon="mdi-package-variant"
+      />
       <!-- Adicione mais itens de menu aqui conforme criarmos novas telas -->
     </v-list>
   </v-navigation-drawer>
