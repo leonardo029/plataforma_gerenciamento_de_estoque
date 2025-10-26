@@ -7,6 +7,7 @@ export class FindByIdProductResource {
     this.id = entity.id;
     this.name = entity.name;
     this.identification_code = entity.identificationCode;
+    this.description = entity.description;
     this.brand = { id: entity.brand.id, name: entity.brand.name };
     this.category = { id: entity.category.id, name: entity.category.name };
     this.nutritional_information = {
