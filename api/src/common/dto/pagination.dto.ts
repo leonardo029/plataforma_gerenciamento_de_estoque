@@ -1,11 +1,7 @@
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
+import { IsOptional, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class FilterProductDto {
-  @IsOptional()
-  @IsString()
-  name?: string;
-
+export class PaginationDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
