@@ -15,6 +15,12 @@ const routes = [
     component: () => import("@/pages/index.vue"),
     meta: { layout: 'blank'}
   },
+  {
+    name: "Dashboard",
+    path: "/dashboard",
+    component: () => import("@/pages/dashboard/index.vue"),
+    meta: { layout: 'default'}
+  },
 ];
 
 const router = createRouter({
@@ -40,5 +46,14 @@ router.onError((err, to) => {
 router.isReady().then(() => {
   localStorage.removeItem("vuetify:dynamic-reload");
 });
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  if (to.path !== '/' && !token) {
+    next({ path: '/' })
+  } else {
+    next()
+  }
+})
 
 export default router;
