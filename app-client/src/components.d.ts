@@ -22,6 +22,10 @@ declare module 'vue' {
     ProductsToolbar: typeof import('./components/products/ProductsToolbar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StockEditDialog: typeof import('./components/stocks/StockEditDialog.vue')['default']
+    StocksTable: typeof import('./components/stocks/StocksTable.vue')['default']
+    StocksToolbar: typeof import('./components/stocks/StocksToolbar.vue')['default']
+    StockWithdrawDialog: typeof import('./components/stocks/StockWithdrawDialog.vue')['default']
     UserInfo: typeof import('./components/appBar/UserInfo.vue')['default']
   }
 }
