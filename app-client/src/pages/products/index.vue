@@ -1,6 +1,6 @@
 <template>
-  <div class="products-page">
-    <v-toolbar density="comfortable" color="transparent">
+  <div class="pa-4 products-page">
+    <v-toolbar density="comfortable" color="transparent" class="mb-4">
       <v-toolbar-title>Produtos</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-text-field
@@ -30,14 +30,27 @@
         class="elevation-1"
       >
         <template #item.actions="{ item }">
-          <v-btn icon="mdi-pencil" variant="text" @click="openEdit(item.id)" />
+          <v-btn icon="mdi-pencil" variant="text" color="primary" @click="openEdit(item.id)" />
           <v-btn icon="mdi-delete" variant="text" color="error" @click="onDelete(item.id)" />
         </template>
-        <template #loading>
-          <v-skeleton-loader type="table" />
-        </template>
+        <!-- Removido skeleton loader para evitar piscar -->
+
         <template #no-data>
           <div class="pa-6 text-medium-emphasis">Nenhum produto encontrado.</div>
+        </template>
+        
+        <!-- Refresh button next to Items per page -->
+        <template #footer.prepend>
+          <v-btn
+            icon="mdi-refresh"
+            variant="text"
+            size="small"
+            :loading="loading"
+            class="mr-2"
+            @click="fetchProducts"
+            aria-label="Atualizar"
+          />
+          <v-spacer />
         </template>
       </v-data-table>
     </v-card>
@@ -83,21 +96,13 @@
                   />
                 </v-col>
                 <v-col cols="12" md="4">
-                  <v-text-field v-model="form.unitOfMeasurement" label="Unidade de Medida" :rules="[rules.required, rules.max45]" required />
+                  <v-select v-model="form.unitOfMeasurement" :items="['kg', 'g', 'l', 'ml']" label="Unidade de Medida" :rules="[rules.required]" required />
                 </v-col>
-                <v-col cols="12" md="8" class="d-flex align-center">
+                <v-col cols="12" md="4" v-if="!isEditing">
                   <v-switch v-model="form.isActivated" inset label="Ativo" />
                 </v-col>
-              </v-row>
-
-              <v-divider class="my-4" />
-
-              <v-row>
-                <v-col cols="12">
-                  <span class="text-subtitle-1">Informações Nutricionais</span>
-                </v-col>
                 <v-col cols="12" md="4">
-                  <v-text-field v-model="form.nutritionalInformation.portion" label="Porção" :rules="[rules.required]" required />
+                  <v-text-field v-model="form.nutritionalInformation.portion" label="Porção" />
                 </v-col>
                 <v-col cols="12" md="4">
                   <v-text-field v-model.number="form.nutritionalInformation.carbohydrate" type="number" label="Carboidratos (g)" :rules="[rules.number]" />
@@ -133,6 +138,12 @@
 <script lang="ts">
 import type { ProductListItem, ProductDetail, ProductCreatePayload, ProductUpdatePayload, BrandListItem, CategoryListItem } from "@/services/products";
 import { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getBrands, getCategories } from "@/services/products";
+
+type VFormRef = {
+  validate: () => Promise<boolean | { valid: boolean }> | boolean | { valid: boolean };
+  reset: () => void;
+  resetValidation: () => void;
+};
 
 interface ProductForm {
   id?: string;
@@ -201,34 +212,26 @@ export default {
         message: "",
         type: "success" as "success" | "error" | "info",
       },
-
       rules: {
-        required: (v: string | number | boolean) => !!v || "Campo obrigatório",
-        max150: (v: string) => !v || v.length <= 150 || "Máx. 150 caracteres",
-        max45: (v: string) => !v || v.length <= 45 || "Máx. 45 caracteres",
-        max255: (v: string) => !v || v.length <= 255 || "Máx. 255 caracteres",
-        number: (v: any) => v === null || v === undefined || !isNaN(Number(v)) || "Informe um número válido",
+        required: (v: any) => (v !== null && v !== undefined && v !== "") || "Campo obrigatório",
+        max150: (v: string) => (!v || v.length <= 150) || "Máx 150 caracteres",
+        max45: (v: string) => (!v || v.length <= 45) || "Máx 45 caracteres",
+        max255: (v: string) => (!v || v.length <= 255) || "Máx 255 caracteres",
+        number: (v: any) => (v === null || v === undefined || v === "" || Number.isFinite(typeof v === "number" ? v : Number(v))) || "Número inválido",
       },
     };
   },
-  computed: {
-    isEditing(): boolean {
-      return !!(this.form as ProductForm).id;
-    },
-  },
   methods: {
     async fetchProducts(): Promise<void> {
-      this.loading = true;
       try {
-        const { items, total } = await getProducts({
-          name: this.search || undefined,
-          page: this.page,
-          limit: this.itemsPerPage,
-        });
+        this.loading = true;
+        const { items, total, page, limit } = await getProducts({ name: this.search || undefined, page: this.page, limit: this.itemsPerPage });
         this.products = items;
         this.totalItems = total;
+        this.page = page;
+        this.itemsPerPage = limit;
       } catch (err: any) {
-        this.showError(err?.message || "Erro ao carregar produtos");
+        this.showError(err?.message || "Falha ao carregar produtos");
       } finally {
         this.loading = false;
       }
@@ -253,46 +256,41 @@ export default {
           id: detail.id,
           name: detail.name,
           identificationCode: detail.identification_code,
-          description: detail.description,
+          description: detail.description || "",
           idBrand: detail.brand.id,
           idCategory: detail.category.id,
-          unitOfMeasurement: detail.unit_of_measurement,
+          unitOfMeasurement: detail.unit_of_measurement || "",
           isActivated: true,
           nutritionalInformation: {
-            portion: detail.nutritional_information.portion,
-            carbohydrate: detail.nutritional_information.carbohydrate,
-            protein: detail.nutritional_information.protein,
-            totalFat: detail.nutritional_information.total_fat,
-            fiber: detail.nutritional_information.fiber,
-            isAllergenic: detail.nutritional_information.is_allergenic,
+            portion: detail.nutritional_information?.portion || "",
+            carbohydrate: detail.nutritional_information?.carbohydrate || 0,
+            protein: detail.nutritional_information?.protein || 0,
+            totalFat: detail.nutritional_information?.total_fat || 0,
+            fiber: detail.nutritional_information?.fiber || 0,
+            isAllergenic: detail.nutritional_information?.is_allergenic || false,
           },
         } as ProductForm;
         this.dialog = true;
       } catch (err: any) {
-        this.showError(err?.message || "Erro ao carregar produto");
+        this.showError(err?.message || "Falha ao carregar produto");
       }
     },
-    closeDialog(): void {
-      this.dialog = false;
-    },
     async onSubmit(): Promise<void> {
-      if (!this.formRef) return;
-      const result = await this.formRef.validate();
-      const isValid = (typeof result === 'object' && result !== null) ? (result.valid ?? result) : result;
+      const form = this.$refs.formRef as unknown as VFormRef | undefined;
+      const result = form ? await form.validate?.() : false;
+      const isValid = typeof result === 'boolean' ? result : !!(result as any)?.valid;
       if (!isValid) return;
       this.saving = true;
       try {
-        if (this.isEditing && this.form.id) {
+        if (this.form.id) {
           const payload: ProductUpdatePayload = {
             name: this.form.name,
             identificationCode: this.form.identificationCode,
-            // enviar descrição apenas se preenchida para não zerar o backend
-            ...(this.form.description ? { description: this.form.description } : {}),
+            description: this.form.description,
             idBrand: this.form.idBrand,
             idCategory: this.form.idCategory,
             unitOfMeasurement: this.form.unitOfMeasurement,
-            isActivated: this.form.isActivated,
-            nutritionalInformation: { ...this.form.nutritionalInformation },
+            nutritionalInformation: this.form.nutritionalInformation,
           };
           await updateProduct(this.form.id, payload);
           this.showSuccess("Produto atualizado com sucesso");
@@ -305,7 +303,7 @@ export default {
             idCategory: this.form.idCategory,
             unitOfMeasurement: this.form.unitOfMeasurement,
             isActivated: this.form.isActivated,
-            nutritionalInformation: { ...this.form.nutritionalInformation },
+            nutritionalInformation: this.form.nutritionalInformation,
           };
           await createProduct(payload);
           this.showSuccess("Produto criado com sucesso");
@@ -352,6 +350,20 @@ export default {
     showError(message: string): void {
       this.snackbar = { show: true, message, type: "error" };
     },
+    closeDialog(): void {
+      this.dialog = false;
+      this.resetForm();
+      try {
+        const form = this.$refs.formRef as unknown as VFormRef | undefined;
+        form?.reset?.();
+        form?.resetValidation?.();
+      } catch {}
+    },
+  },
+  computed: {
+    isEditing(): boolean {
+      return !!this.form?.id;
+    },
   },
   watch: {
     async search() {
@@ -375,6 +387,5 @@ export default {
 .products-page {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
 </style>

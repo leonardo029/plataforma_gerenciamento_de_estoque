@@ -5,24 +5,12 @@
       <v-card-text>
         Bem-vindo ao Product Manager.
       </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn color="secondary" @click="logout">Sair</v-btn>
-      </v-card-actions>
     </v-card>
   </v-container>
 </template>
 
 <script lang="ts">
-import { useAuthStore } from '@/stores/auth'
 export default {
   name: 'DashboardPage',
-  methods: {
-    logout() {
-      const auth = useAuthStore()
-      auth.logout()
-      this.$router.push('/')
-    }
-  }
 }
 </script>

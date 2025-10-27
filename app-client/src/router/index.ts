@@ -22,10 +22,22 @@ const routes = [
     meta: { layout: 'default'}
   },
   {
+    name: "Stocks",
+    path: "/stocks",
+    component: () => import("@/pages/stocks/index.vue"),
+    meta: { layout: 'default' }
+  },
+  {
     name: "Products",
     path: "/products",
     component: () => import("@/pages/products/index.vue"),
     meta: { layout: 'default'}
+  },
+  {
+    name: "Users",
+    path: "/users",
+    component: () => import("@/pages/users/index.vue"),
+    meta: { layout: 'default', roles: ['admin'] }
   },
 ];
 
@@ -55,11 +67,30 @@ router.isReady().then(() => {
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
+  // Auth guard
   if (to.path !== '/' && !token) {
     next({ path: '/' })
-  } else {
-    next()
+    return
   }
+
+  // Role guard (if route declares roles)
+  const roles = (to.meta as any)?.roles as string[] | undefined
+  if (roles) {
+    const routeRoles = roles.map(r => String(r).toLowerCase())
+    let userRole: string | null = null
+    try {
+      const userStr = localStorage.getItem('user')
+      const user = userStr ? JSON.parse(userStr) : null
+      userRole = user?.role ?? null
+    } catch {}
+
+    if (!userRole || !routeRoles.includes(String(userRole).toLowerCase())) {
+      next({ path: '/dashboard' })
+      return
+    }
+  }
+
+  next()
 })
 
 export default router;

@@ -21,7 +21,9 @@
           outlined
           prepend-inner-icon="mdi-lock"
           :rules="[rules.required]"
-          type="password"
+          :type="showPassword ? 'text' : 'password'"
+          :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+          @click:append-inner="showPassword = !showPassword"
         />
 
         <v-btn
@@ -56,6 +58,7 @@ export default {
     return {
       email: "",
       password: "",
+      showPassword: false,
       isValid: false,
       snackbarVisible: false,
       snackbarMessage: "",
