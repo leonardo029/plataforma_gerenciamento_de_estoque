@@ -1,6 +1,7 @@
 // Utilities
 import { defineStore } from 'pinia'
 import { login as authLogin } from '@/services/auth'
+import router from '@/router'
 
 export type AuthUser = {
   name: string
@@ -50,6 +51,13 @@ export const useAuthStore = defineStore('auth', {
         this.loading = false
       }
     },
+    async loginAndRedirect(email: string, password: string) {
+      const ok = await this.login(email, password)
+      if (ok) {
+        router.push('/dashboard')
+      }
+      return ok
+    },
 
     logout() {
       this.token = null
@@ -58,6 +66,10 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       localStorage.removeItem('token')
       localStorage.removeItem('user')
+    },
+    logoutAndRedirect() {
+      this.logout()
+      router.push('/')
     },
   },
 })

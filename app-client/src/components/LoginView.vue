@@ -37,11 +37,7 @@
           Entrar
         </v-btn>
 
-        <AppSnackbar
-          v-model="snackbarVisible"
-          :message="snackbarMessage"
-          :type="snackbarType"
-        />
+        <AppSnackbar />
       </v-form>
     </v-card>
   </v-container>
@@ -50,28 +46,31 @@
 <script>
 import { useAuthStore } from '@/stores/auth'
 import AppSnackbar from '@/components/AppSnackbar.vue'
+import { useSnackbarStore } from '@/stores/snackbar'
+
 export default {
   name: "LoginView",
   components: { AppSnackbar },
 
   data() {
     return {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
       showPassword: false,
       isValid: false,
-      snackbarVisible: false,
-      snackbarMessage: "",
-      snackbarType: "info",
-      rules: {
-        required: (v) => !!v || "Campo obrigatório",
-        email: (v) => /.+@.+\..+/.test(v) || "E-mail inválido",
-      },
-    };
+    }
   },
 
   computed: {
     authStore() { return useAuthStore() },
+    snackbarStore() { return useSnackbarStore() },
+    rules() {
+      return {
+        required: (v) => !!v || 'Campo obrigatório',
+        email: (v) => /.+@.+\..+/.test(v) || 'E-mail inválido',
+      }
+    },
+    snackbarShow() { return this.snackbarStore.show },
     authError() { return this.authStore.error },
     isLoading() { return this.authStore.loading },
   },
@@ -80,12 +79,10 @@ export default {
     authError(newVal) {
       if (newVal) {
         const msg = Array.isArray(newVal) ? newVal.join(', ') : newVal
-        this.snackbarMessage = msg
-        this.snackbarType = 'error'
-        this.snackbarVisible = true
+        this.snackbarStore.error(msg)
       }
     },
-    snackbarVisible(val) {
+    snackbarShow(val) {
       if (!val) {
         this.authStore.error = null
       }
@@ -99,10 +96,11 @@ export default {
         if (ok) {
           this.$router.push('/dashboard')
         }
+        await this.authStore.loginAndRedirect(this.email, this.password)
       }
     },
   },
-};
+}
 </script>
 
 <style scoped>
