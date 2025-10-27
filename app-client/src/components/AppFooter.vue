@@ -1,7 +1,7 @@
 <template>
   <v-footer app height="40">
     <a
-      v-for="item in items"
+      v-for="item in appMeta.socialLinks"
       :key="item.title"
       class="d-inline-block mx-2 social-link"
       :href="item.href"
@@ -16,20 +16,15 @@
       class="text-caption text-disabled"
       style="position: absolute; right: 16px"
     >
-      &copy; {{ new Date().getFullYear() }}
-      <span class="d-none d-sm-inline-block"> - Product Manager</span>
+      &copy; {{ appMeta.currentYear }}
+      <span class="d-none d-sm-inline-block"> - {{ appMeta.footerSuffix }}</span>
     </div>
   </v-footer>
 </template>
 
 <script setup lang="ts">
-const items = [
-  {
-    title: "Project GitHub",
-    icon: `mdi-github`,
-    href: "https://github.com/leonardo029/plataforma_gerenciamento_de_estoque/tree/main",
-  },
-];
+import { useAppMetaStore } from '@/stores/app-meta'
+const appMeta = useAppMetaStore()
 </script>
 
 <style scoped lang="sass">
