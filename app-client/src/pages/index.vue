@@ -1,7 +1,9 @@
 <template>
-  <HelloWorld />
+  <LoginView />
 </template>
 
-<script lang="ts" setup>
-  //
+<script lang="ts">
+export default {
+  name: "LoginPage",
+};
 </script>

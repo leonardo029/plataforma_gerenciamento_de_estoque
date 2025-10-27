@@ -3,7 +3,7 @@ import { ProductRepository } from './repositories';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NutritionalInformationService } from '../nutritional-information/nutritional-information.service';
 import { Transactional } from 'typeorm-transactional';
-import { CreateProductDto, FilterProductDto, UpdateProductDto } from './dto';
+import { CreateProductDto, ProductQueryDto, UpdateProductDto } from './dto';
 import { FindAllProductResource } from './resources';
 import { FindByIdProductResource } from './resources/find-by-id.resource';
 import { FindOptionsWhere, ILike } from 'typeorm';
@@ -109,19 +109,24 @@ export class ProductService {
   }
 
   async findById(id: string): Promise<FindByIdProductResource> {
-    const user = await this.productRepository.findOne({
+    const product = await this.productRepository.findOne({
       where: { id },
       relations: ['nutritionalInformation', 'brand', 'category'],
     });
 
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
     }
 
-    return new FindByIdProductResource(user);
+    return new FindByIdProductResource(product);
   }
 
-  async findAll(filters: FilterProductDto): Promise<FindAllProductResource[]> {
+  async findAll(filters: ProductQueryDto): Promise<{
+    items: FindAllProductResource[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const where: FindOptionsWhere<ProductEntity> = {
       isActivated: true,
     };
@@ -130,11 +135,22 @@ export class ProductService {
       where.name = ILike(`%${filters.name}%`);
     }
 
-    const products = await this.productRepository.find({
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 10;
+
+    const [products, total] = await this.productRepository.findAndCount({
       where,
       relations: ['nutritionalInformation', 'brand', 'category'],
+      order: { name: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    return products.map((product) => new FindAllProductResource(product));
+    return {
+      items: products.map((product) => new FindAllProductResource(product)),
+      total,
+      page,
+      limit,
+    };
   }
 }

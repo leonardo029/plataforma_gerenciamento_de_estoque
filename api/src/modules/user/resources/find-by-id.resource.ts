@@ -11,10 +11,12 @@ export class FindByIdUserResource {
     this.address = {
       street: entity.address.street,
       streetType: entity.address.streetType.name,
+      idStreetType: entity.address.idStreetType,
       complement: entity.address.complement,
       cep: entity.address.cep,
       number: entity.address.number,
       neighborhood: entity.address.neighborhood,
+      idCity: entity.address.idCity,
       city: {
         name: entity.address.city.name,
         state: {

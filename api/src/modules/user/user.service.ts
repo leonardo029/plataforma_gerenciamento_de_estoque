@@ -6,10 +6,12 @@ import {
   FindByEmailUserResource,
   FindByIdUserResource,
 } from './resources';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto, FindUsersQueryDto } from './dto';
 import { ContactService } from '../contact/contact.service';
 import { AddressService } from '../address/address.service';
 import { Transactional } from 'typeorm-transactional';
+import { FindOptionsWhere, ILike } from 'typeorm';
+import { UserEntity } from './entities';
 
 @Injectable()
 export class UserService {
@@ -101,11 +103,34 @@ export class UserService {
     return new FindByIdUserResource(user);
   }
 
-  async findAll(): Promise<FindAllUserResource[]> {
-    const users = await this.userRepository.find({
+  async findAll(filters: FindUsersQueryDto): Promise<{
+    items: FindAllUserResource[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 10;
+
+    const where: FindOptionsWhere<UserEntity> = {};
+    if (filters.name) {
+      where.name = ILike(`%${filters.name}%`);
+    }
+
+    const skip = (page - 1) * limit;
+    const [users, total] = await this.userRepository.findAndCount({
+      where,
       relations: ['address', 'contact'],
+      skip,
+      take: limit,
+      order: { name: 'ASC' },
     });
-    return users.map((user) => new FindAllUserResource(user));
+    return {
+      items: users.map((user) => new FindAllUserResource(user)),
+      total,
+      page,
+      limit,
+    };
   }
 
   async findByEmail(email: string): Promise<FindByEmailUserResource> {
