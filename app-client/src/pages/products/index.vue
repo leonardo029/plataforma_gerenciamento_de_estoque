@@ -33,13 +33,11 @@
           <v-btn icon="mdi-pencil" variant="text" color="primary" @click="openEdit(item.id)" />
           <v-btn icon="mdi-delete" variant="text" color="error" @click="onDelete(item.id)" />
         </template>
-        <!-- Removido skeleton loader para evitar piscar -->
 
         <template #no-data>
           <div class="pa-6 text-medium-emphasis">Nenhum produto encontrado.</div>
         </template>
         
-        <!-- Refresh button next to Items per page -->
         <template #footer.prepend>
           <v-btn
             icon="mdi-refresh"
@@ -131,38 +129,19 @@
       </v-card>
     </v-dialog>
 
-    <AppSnackbar v-model="snackbar.show" :message="snackbar.message" :type="snackbar.type" />
+    <AppSnackbar />
   </div>
 </template>
 
 <script lang="ts">
-import type { ProductListItem, ProductDetail, ProductCreatePayload, ProductUpdatePayload, BrandListItem, CategoryListItem } from "@/services/products";
-import { getProducts, getProductById, createProduct, updateProduct, deleteProduct, getBrands, getCategories } from "@/services/products";
+import type { ProductListItem } from "@/services/products";
+import { useProductsStore } from '@/stores/products'
 
 type VFormRef = {
   validate: () => Promise<boolean | { valid: boolean }> | boolean | { valid: boolean };
   reset: () => void;
   resetValidation: () => void;
 };
-
-interface ProductForm {
-  id?: string;
-  name: string;
-  identificationCode: string;
-  description: string;
-  idBrand: string;
-  idCategory: string;
-  unitOfMeasurement: string;
-  isActivated: boolean;
-  nutritionalInformation: {
-    portion: string;
-    carbohydrate: number;
-    protein: number;
-    totalFat: number;
-    fiber: number;
-    isAllergenic: boolean;
-  };
-}
 
 export default {
   name: "ProductsPage",
@@ -175,184 +154,72 @@ export default {
         { title: "Categoria", key: "category" },
         { title: "Ações", key: "actions", sortable: false, align: "end" },
       ] as const,
-      products: [] as ProductListItem[],
-      loading: false,
-      search: "",
-      page: 1,
-      itemsPerPage: 10,
-      totalItems: 0,
-
-      dialog: false,
-      formValid: false,
-      formRef: null as any,
-      saving: false,
-      form: {
-        name: "",
-        identificationCode: "",
-        description: "",
-        idBrand: "",
-        idCategory: "",
-        unitOfMeasurement: "",
-        isActivated: true,
-        nutritionalInformation: {
-          portion: "",
-          carbohydrate: 0,
-          protein: 0,
-          totalFat: 0,
-          fiber: 0,
-          isAllergenic: false,
-        },
-      } as ProductForm,
-
-      brandItems: [] as BrandListItem[],
-      categoryItems: [] as CategoryListItem[],
-
-      snackbar: {
-        show: false,
-        message: "",
-        type: "success" as "success" | "error" | "info",
-      },
-      rules: {
-        required: (v: any) => (v !== null && v !== undefined && v !== "") || "Campo obrigatório",
-        max150: (v: string) => (!v || v.length <= 150) || "Máx 150 caracteres",
-        max45: (v: string) => (!v || v.length <= 45) || "Máx 45 caracteres",
-        max255: (v: string) => (!v || v.length <= 255) || "Máx 255 caracteres",
-        number: (v: any) => (v === null || v === undefined || v === "" || Number.isFinite(typeof v === "number" ? v : Number(v))) || "Número inválido",
-      },
     };
+  },
+  computed: {
+    productsStore() { return useProductsStore() },
+    // list & pagination
+    products(): ProductListItem[] { return this.productsStore.products },
+    loading(): boolean { return this.productsStore.loading },
+    search: {
+      get(): string { return this.productsStore.search },
+      set(v: string) { this.productsStore.search = v },
+    },
+    page: {
+      get(): number { return this.productsStore.page },
+      set(v: number) { this.productsStore.page = v },
+    },
+    itemsPerPage: {
+      get(): number { return this.productsStore.itemsPerPage },
+      set(v: number) { this.productsStore.itemsPerPage = v },
+    },
+    totalItems(): number { return this.productsStore.totalItems },
+
+    // dialog & form
+    dialog: {
+      get(): boolean { return this.productsStore.dialog },
+      set(v: boolean) { this.productsStore.dialog = v },
+    },
+    formValid: {
+      get(): boolean { return this.productsStore.formValid },
+      set(v: boolean) { this.productsStore.formValid = v },
+    },
+    saving(): boolean { return this.productsStore.saving },
+    form() { return this.productsStore.form },
+
+    // selects
+    brandItems() { return this.productsStore.brandItems },
+    categoryItems() { return this.productsStore.categoryItems },
+
+    rules() { return this.productsStore.rules },
+
+    isEditing(): boolean { return this.productsStore.isEditing },
   },
   methods: {
     async fetchProducts(): Promise<void> {
-      try {
-        this.loading = true;
-        const { items, total, page, limit } = await getProducts({ name: this.search || undefined, page: this.page, limit: this.itemsPerPage });
-        this.products = items;
-        this.totalItems = total;
-        this.page = page;
-        this.itemsPerPage = limit;
-      } catch (err: any) {
-        this.showError(err?.message || "Falha ao carregar produtos");
-      } finally {
-        this.loading = false;
-      }
+      await this.productsStore.fetchProducts()
     },
     async fetchBrandsAndCategories(): Promise<void> {
-      try {
-        const [brands, categories] = await Promise.all([getBrands(), getCategories()]);
-        this.brandItems = brands;
-        this.categoryItems = categories;
-      } catch (err: any) {
-        this.showError(err?.message || "Erro ao carregar marcas/categorias");
-      }
+      await this.productsStore.fetchBrandsAndCategories()
     },
     openCreate(): void {
-      this.resetForm();
-      this.dialog = true;
+      this.productsStore.openCreate()
     },
     async openEdit(id: string): Promise<void> {
-      try {
-        const detail: ProductDetail = await getProductById(id);
-        this.form = {
-          id: detail.id,
-          name: detail.name,
-          identificationCode: detail.identification_code,
-          description: detail.description || "",
-          idBrand: detail.brand.id,
-          idCategory: detail.category.id,
-          unitOfMeasurement: detail.unit_of_measurement || "",
-          isActivated: true,
-          nutritionalInformation: {
-            portion: detail.nutritional_information?.portion || "",
-            carbohydrate: detail.nutritional_information?.carbohydrate || 0,
-            protein: detail.nutritional_information?.protein || 0,
-            totalFat: detail.nutritional_information?.total_fat || 0,
-            fiber: detail.nutritional_information?.fiber || 0,
-            isAllergenic: detail.nutritional_information?.is_allergenic || false,
-          },
-        } as ProductForm;
-        this.dialog = true;
-      } catch (err: any) {
-        this.showError(err?.message || "Falha ao carregar produto");
-      }
+      await this.productsStore.openEdit(id)
     },
     async onSubmit(): Promise<void> {
       const form = this.$refs.formRef as unknown as VFormRef | undefined;
       const result = form ? await form.validate?.() : false;
       const isValid = typeof result === 'boolean' ? result : !!(result as any)?.valid;
       if (!isValid) return;
-      this.saving = true;
-      try {
-        if (this.form.id) {
-          const payload: ProductUpdatePayload = {
-            name: this.form.name,
-            identificationCode: this.form.identificationCode,
-            description: this.form.description,
-            idBrand: this.form.idBrand,
-            idCategory: this.form.idCategory,
-            unitOfMeasurement: this.form.unitOfMeasurement,
-            nutritionalInformation: this.form.nutritionalInformation,
-          };
-          await updateProduct(this.form.id, payload);
-          this.showSuccess("Produto atualizado com sucesso");
-        } else {
-          const payload: ProductCreatePayload = {
-            name: this.form.name,
-            identificationCode: this.form.identificationCode,
-            description: this.form.description,
-            idBrand: this.form.idBrand,
-            idCategory: this.form.idCategory,
-            unitOfMeasurement: this.form.unitOfMeasurement,
-            isActivated: this.form.isActivated,
-            nutritionalInformation: this.form.nutritionalInformation,
-          };
-          await createProduct(payload);
-          this.showSuccess("Produto criado com sucesso");
-        }
-        this.dialog = false;
-        await this.fetchProducts();
-      } catch (err: any) {
-        this.showError(err?.message || "Falha ao salvar produto");
-      } finally {
-        this.saving = false;
-      }
+      await this.productsStore.submit()
     },
     async onDelete(id: string): Promise<void> {
-      try {
-        await deleteProduct(id);
-        this.showSuccess("Produto removido com sucesso");
-        await this.fetchProducts();
-      } catch (err: any) {
-        this.showError(err?.message || "Falha ao remover produto");
-      }
-    },
-    resetForm(): void {
-      this.form = {
-        name: "",
-        identificationCode: "",
-        description: "",
-        idBrand: "",
-        idCategory: "",
-        unitOfMeasurement: "",
-        isActivated: true,
-        nutritionalInformation: {
-          portion: "",
-          carbohydrate: 0,
-          protein: 0,
-          totalFat: 0,
-          fiber: 0,
-          isAllergenic: false,
-        },
-      } as ProductForm;
-    },
-    showSuccess(message: string): void {
-      this.snackbar = { show: true, message, type: "success" };
-    },
-    showError(message: string): void {
-      this.snackbar = { show: true, message, type: "error" };
+      await this.productsStore.deleteProductById(id)
     },
     closeDialog(): void {
-      this.dialog = false;
-      this.resetForm();
+      this.productsStore.closeDialog()
       try {
         const form = this.$refs.formRef as unknown as VFormRef | undefined;
         form?.reset?.();
@@ -360,25 +227,13 @@ export default {
       } catch {}
     },
   },
-  computed: {
-    isEditing(): boolean {
-      return !!this.form?.id;
-    },
-  },
   watch: {
-    async search() {
-      await this.fetchProducts();
-    },
-    async page() {
-      await this.fetchProducts();
-    },
-    async itemsPerPage() {
-      this.page = 1;
-      await this.fetchProducts();
-    },
+    async search() { await this.productsStore.setSearch(this.search) },
+    async page() { await this.productsStore.setPage(this.page) },
+    async itemsPerPage() { await this.productsStore.setItemsPerPage(this.itemsPerPage) },
   },
   async mounted() {
-    await Promise.all([this.fetchProducts(), this.fetchBrandsAndCategories()]);
+    await this.productsStore.init()
   },
 };
 </script>
