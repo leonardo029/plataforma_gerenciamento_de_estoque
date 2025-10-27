@@ -8,6 +8,7 @@ export class FindByEmailUserResource {
     this.name = entity.name;
     this.email = entity.email;
     this.password = entity.password;
+    this.role = entity.role;
     this.isActivated = entity.isActivated;
   }
 }

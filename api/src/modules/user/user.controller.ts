@@ -9,9 +9,10 @@ import {
   Patch,
   Post,
   UseGuards,
+  Query,
 } from '@nestjs/common';
-import { IsPublic, Roles } from '../auth/decorators';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { Roles } from '../auth/decorators';
+import { CreateUserDto, UpdateUserDto, FindUsersQueryDto } from './dto';
 import { UserRoleType } from './types';
 import { UserService } from './user.service';
 import { RolesGuard } from '../auth/guards';
@@ -23,15 +24,14 @@ export class UserController {
 
   @UseGuards(RolesGuard)
   @Roles(UserRoleType.ADMIN)
-  @IsPublic()
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() query: FindUsersQueryDto) {
+    return this.userService.findAll(query.page, query.limit);
   }
 
   @UseGuards(RolesGuard)

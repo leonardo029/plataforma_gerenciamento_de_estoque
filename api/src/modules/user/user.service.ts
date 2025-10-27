@@ -101,11 +101,28 @@ export class UserService {
     return new FindByIdUserResource(user);
   }
 
-  async findAll(): Promise<FindAllUserResource[]> {
-    const users = await this.userRepository.find({
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    items: FindAllUserResource[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const skip = (page - 1) * limit;
+    const [users, total] = await this.userRepository.findAndCount({
       relations: ['address', 'contact'],
+      skip,
+      take: limit,
+      order: { name: 'ASC' },
     });
-    return users.map((user) => new FindAllUserResource(user));
+    return {
+      items: users.map((user) => new FindAllUserResource(user)),
+      total,
+      page,
+      limit,
+    };
   }
 
   async findByEmail(email: string): Promise<FindByEmailUserResource> {
