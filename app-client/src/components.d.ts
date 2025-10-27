@@ -14,6 +14,7 @@ declare module 'vue' {
     AppBar: typeof import('./components/appBar/AppBar.vue')['default']
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     AppSnackbar: typeof import('./components/AppSnackbar.vue')['default']
+    DashboardCard: typeof import('./components/dashboard/DashboardCard.vue')['default']
     LoginForm: typeof import('./components/LoginForm.vue')['default']
     MenuVertical: typeof import('./components/MenuVertical.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
