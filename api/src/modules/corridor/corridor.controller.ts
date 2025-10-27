@@ -1,9 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Inject } from '@nestjs/common';
 import { CorridorService } from './corridor.service';
 
 @Controller('corridor')
 export class CorridorController {
-  constructor(private readonly corridorService: CorridorService) {}
+  @Inject(CorridorService)
+  private readonly corridorService: CorridorService;
 
   @Get()
   findAll() {
