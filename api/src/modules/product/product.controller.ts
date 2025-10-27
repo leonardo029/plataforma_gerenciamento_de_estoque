@@ -11,9 +11,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDto, FilterProductDto, UpdateProductDto } from './dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserEntity } from '../user/entities';
+import { CreateProductDto, ProductQueryDto, UpdateProductDto } from './dto';
 
 @Controller('product')
 export class ProductController {
@@ -29,7 +29,7 @@ export class ProductController {
   }
 
   @Get()
-  findAll(@Query() filters: FilterProductDto) {
+  findAll(@Query() filters: ProductQueryDto) {
     return this.productService.findAll(filters);
   }
 

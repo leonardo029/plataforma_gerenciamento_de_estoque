@@ -5,10 +5,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FindOptionsWhere, ILike } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { StockLocationService } from '../stock-location/stock-location.service';
 import { CreateStockTransactionDto } from '../stock-transaction/dto';
-import { CreateStockDto, RemoveStockDto, UpdateStockDto } from './dto';
+import {
+  CreateStockDto,
+  RemoveStockDto,
+  UpdateStockDto,
+  FilterStockDto,
+} from './dto';
 import { StockRepository } from './repositories';
 import { ActionType } from '../stock-transaction/types';
 import { StockTransactionService } from '../stock-transaction/stock-transaction.service';
@@ -17,6 +23,7 @@ import { ProductSupplierService } from '../product-supplier/product-supplier.ser
 import { CreateProductSupplierDto } from '../product-supplier/dto';
 import { FindAllStockResource, FindByIdStockResource } from './resources';
 import { SupplierService } from '../supplier/supplier.service';
+import { StockEntity } from './entities';
 @Injectable()
 export class StockService {
   @InjectRepository(StockRepository)
@@ -193,11 +200,36 @@ export class StockService {
     return new FindByIdStockResource(stock);
   }
 
-  async findAll(): Promise<FindAllStockResource[]> {
-    const stocks = await this.stockRepository.find({
-      where: { isActivated: true },
+  async findAll(filters: FilterStockDto): Promise<{
+    items: FindAllStockResource[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 10;
+
+    const where: FindOptionsWhere<StockEntity> = { isActivated: true };
+    if (filters.id) {
+      where.id = filters.id;
+    }
+    if (filters.name) {
+      where.product = { name: ILike(`%${filters.name}%`) };
+    }
+
+    const [stocks, total] = await this.stockRepository.findAndCount({
+      where,
       relations: ['product'],
+      order: { batch: 'ASC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
-    return stocks.map((stock) => new FindAllStockResource(stock));
+
+    return {
+      items: stocks.map((stock) => new FindAllStockResource(stock)),
+      total,
+      page,
+      limit,
+    };
   }
 }

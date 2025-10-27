@@ -3,10 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SectionEntity } from './entities';
 import { SectionRepository } from './repositories';
 import { SectionService } from './section.service';
+import { SectionController } from './section.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SectionEntity])],
-  controllers: [],
+  controllers: [SectionController],
   providers: [SectionService, SectionRepository],
   exports: [SectionService],
 })
