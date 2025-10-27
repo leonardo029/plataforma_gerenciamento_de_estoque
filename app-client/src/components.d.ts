@@ -26,6 +26,9 @@ declare module 'vue' {
     StocksTable: typeof import('./components/stocks/StocksTable.vue')['default']
     StocksToolbar: typeof import('./components/stocks/StocksToolbar.vue')['default']
     StockWithdrawDialog: typeof import('./components/stocks/StockWithdrawDialog.vue')['default']
+    UserEditDialog: typeof import('./components/users/UserEditDialog.vue')['default']
     UserInfo: typeof import('./components/appBar/UserInfo.vue')['default']
+    UsersTable: typeof import('./components/users/UsersTable.vue')['default']
+    UsersToolbar: typeof import('./components/users/UsersToolbar.vue')['default']
   }
 }
