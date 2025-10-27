@@ -1,5 +1,24 @@
 import api from "./api";
 
+export interface ProductForm {
+  id?: string;
+  name: string;
+  identificationCode: string;
+  description: string;
+  idBrand: string;
+  idCategory: string;
+  unitOfMeasurement: string;
+  isActivated: boolean;
+  nutritionalInformation: {
+    portion: string;
+    carbohydrate: number;
+    protein: number;
+    totalFat: number;
+    fiber: number;
+    isAllergenic: boolean;
+  };
+}
+
 export type NutritionalInformationPayload = {
   portion: string;
   carbohydrate: number;
@@ -73,11 +92,30 @@ export async function getProductById(id: string): Promise<ProductDetail> {
   return data;
 }
 
-export async function createProduct(payload: ProductCreatePayload): Promise<void> {
+export async function createProduct(form: ProductForm): Promise<void> {
+  const payload: ProductCreatePayload = {
+    name: form.name,
+    identificationCode: form.identificationCode,
+    description: form.description,
+    idBrand: form.idBrand,
+    idCategory: form.idCategory,
+    unitOfMeasurement: form.unitOfMeasurement,
+    isActivated: form.isActivated,
+    nutritionalInformation: form.nutritionalInformation,
+  };
   await api.post<void>("/product", payload);
 }
 
-export async function updateProduct(id: string, payload: ProductUpdatePayload): Promise<void> {
+export async function updateProduct(id: string, form: ProductForm): Promise<void> {
+  const payload: ProductUpdatePayload = {
+    name: form.name,
+    identificationCode: form.identificationCode,
+    description: form.description,
+    idBrand: form.idBrand,
+    idCategory: form.idCategory,
+    unitOfMeasurement: form.unitOfMeasurement,
+    nutritionalInformation: form.nutritionalInformation,
+  };
   await api.patch<void>(`/product/${id}`, payload);
 }
 

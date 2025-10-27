@@ -41,129 +41,118 @@
 
 <script lang="ts">
 import type { ProductListItem } from "@/services/products";
-import { useProductsStore } from "@/stores/products";
+import { useProductListStore } from "@/stores/product-list";
+import { useProductFormStore } from "@/stores/product-form";
 import { mapStores } from "pinia";
+import { rules } from "@/utils/validations";
 
 export default {
   name: "ProductsPage",
+  data() {
+    return {
+      rules,
+    };
+  },
   computed: {
-    ...mapStores(useProductsStore),
+    ...mapStores(useProductListStore, useProductFormStore),
     // list & pagination
     products(): ProductListItem[] {
-      return this.productsStore.products;
+      return this.productListStore.products;
     },
     loading(): boolean {
-      return this.productsStore.loading;
+      return this.productListStore.loading;
     },
     search: {
       get(): string {
-        return this.productsStore.search;
+        return this.productListStore.search;
       },
       set(v: string) {
-        this.productsStore.search = v;
+        this.productListStore.setSearch(v);
       },
     },
     page: {
       get(): number {
-        return this.productsStore.page;
+        return this.productListStore.page;
       },
       set(v: number) {
-        this.productsStore.page = v;
+        this.productListStore.setPage(v);
       },
     },
     itemsPerPage: {
       get(): number {
-        return this.productsStore.itemsPerPage;
+        return this.productListStore.itemsPerPage;
       },
       set(v: number) {
-        this.productsStore.itemsPerPage = v;
+        this.productListStore.setItemsPerPage(v);
       },
     },
     totalItems(): number {
-      return this.productsStore.totalItems;
+      return this.productListStore.totalItems;
     },
 
     // dialog & form
     dialog: {
       get(): boolean {
-        return this.productsStore.dialog;
+        return this.productFormStore.dialog;
       },
       set(v: boolean) {
-        this.productsStore.dialog = v;
+        this.productFormStore.dialog = v;
       },
     },
     formValid: {
       get(): boolean {
-        return this.productsStore.formValid;
+        return this.productFormStore.formValid;
       },
       set(v: boolean) {
-        this.productsStore.formValid = v;
+        this.productFormStore.formValid = v;
       },
     },
     saving(): boolean {
-      return this.productsStore.saving;
+      return this.productFormStore.saving;
     },
     form: {
       get() {
-        return this.productsStore.form;
+        return this.productFormStore.form;
       },
       set(v: any) {
-        this.productsStore.form = v;
+        this.productFormStore.form = v;
       },
     },
 
     // selects
     brandItems() {
-      return this.productsStore.brandItems;
+      return this.productFormStore.brandItems;
     },
     categoryItems() {
-      return this.productsStore.categoryItems;
-    },
-
-    rules() {
-      return this.productsStore.rules;
+      return this.productFormStore.categoryItems;
     },
 
     isEditing(): boolean {
-      return this.productsStore.isEditing;
+      return this.productFormStore.isEditing;
     },
   },
   methods: {
     async fetchProducts(): Promise<void> {
-      await this.productsStore.fetchProducts();
-    },
-    async fetchBrandsAndCategories(): Promise<void> {
-      await this.productsStore.fetchBrandsAndCategories();
+      await this.productListStore.fetchProducts();
     },
     openCreate(): void {
-      this.productsStore.openCreate();
+      this.productFormStore.openCreate();
     },
     async openEdit(id: string): Promise<void> {
-      await this.productsStore.openEdit(id);
+      await this.productFormStore.openEdit(id);
     },
     async onSubmit(): Promise<void> {
-      await this.productsStore.submit();
+      await this.productFormStore.submit();
     },
     async onDelete(id: string): Promise<void> {
-      await this.productsStore.deleteProductById(id);
+      await this.productListStore.deleteProductById(id);
     },
     closeDialog(): void {
-      this.productsStore.closeDialog();
-    },
-  },
-  watch: {
-    async search(newVal: string) {
-      await this.productsStore.setSearch(newVal);
-    },
-    async page(newVal: number) {
-      await this.productsStore.setPage(newVal);
-    },
-    async itemsPerPage(newVal: number) {
-      await this.productsStore.setItemsPerPage(newVal);
+      this.productFormStore.closeDialog();
     },
   },
   async mounted() {
-    await this.productsStore.init();
+    await this.productListStore.fetchProducts();
   },
 };
 </script>
