@@ -31,7 +31,7 @@ export class UserController {
 
   @Get()
   findAll(@Query() query: FindUsersQueryDto) {
-    return this.userService.findAll(query.page, query.limit);
+    return this.userService.findAll(query);
   }
 
   @UseGuards(RolesGuard)
