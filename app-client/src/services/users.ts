@@ -78,7 +78,7 @@ export type UserUpdatePayload = Partial<{
 
 export type Paginated<T> = { items: T[]; total: number; page: number; limit: number }
 
-export async function getUsers(params?: { page?: number; limit?: number }): Promise<Paginated<UserListItem>> {
+export async function getUsers(params?: { name?: string; page?: number; limit?: number }): Promise<Paginated<UserListItem>> {
   const { data } = await api.get<Paginated<UserListItem>>('/user', { params })
   return data
 }

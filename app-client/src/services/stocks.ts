@@ -62,7 +62,7 @@ export type StockWithdrawPayload = {
 
 export type Paginated<T> = { items: T[]; total: number; page: number; limit: number }
 
-export async function getStocks(params?: { page?: number; limit?: number }): Promise<Paginated<StockListItem>> {
+export async function getStocks(params?: { name?: string; page?: number; limit?: number }): Promise<Paginated<StockListItem>> {
   const { data } = await api.get<Paginated<StockListItem>>('/stock', { params });
   return data;
 }

@@ -247,12 +247,15 @@ watch(limit, async (l) => {
   await usersStore.setLimit(l)
 })
 
+watch(search, async (s) => {
+  await usersStore.setSearch(s)
+})
+
 watch(selectedStateCode, async (code) => {
   await usersStore.setSelectedStateCode(code ?? null)
 })
 
 onMounted(async () => {
   await usersStore.init()
-  await usersStore.loadReferenceData()
 })
 </script>

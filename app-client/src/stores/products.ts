@@ -57,6 +57,8 @@ export const useProductsStore = defineStore('products', {
     // Selects
     brandItems: [] as BrandListItem[],
     categoryItems: [] as CategoryListItem[],
+    // Cache flag to avoid duplicate requests for brand/category
+    selectsLoaded: false,
   }),
 
   getters: {
@@ -76,7 +78,8 @@ export const useProductsStore = defineStore('products', {
 
   actions: {
     async init() {
-      await Promise.all([this.fetchProducts(), this.fetchBrandsAndCategories()])
+      // Load only the products list on init; brands/categories are lazy-loaded
+      await this.fetchProducts()
     },
 
     async fetchProducts() {
@@ -96,17 +99,27 @@ export const useProductsStore = defineStore('products', {
     },
 
     async fetchBrandsAndCategories() {
+      // Kept for backward compatibility, now includes caching to prevent duplicate requests
+      if (this.selectsLoaded) return
       const sb = useSnackbarStore()
       try {
         const [brands, categories] = await Promise.all([getBrands(), getCategories()])
         this.brandItems = brands
         this.categoryItems = categories
+        this.selectsLoaded = true
       } catch (err: any) {
         sb.error(err?.message || 'Erro ao carregar marcas/categorias')
       }
     },
 
-    openCreate() {
+    async ensureBrandCategory() {
+      // Explicit helper to load brand/category only once on dialog open
+      if (this.selectsLoaded) return
+      await this.fetchBrandsAndCategories()
+    },
+
+    async openCreate() {
+      await this.ensureBrandCategory()
       this.resetForm()
       this.dialog = true
     },
@@ -114,6 +127,7 @@ export const useProductsStore = defineStore('products', {
     async openEdit(id: string) {
       const sb = useSnackbarStore()
       try {
+        await this.ensureBrandCategory()
         const detail: ProductDetail = await getProductById(id)
         this.form = {
           id: detail.id,

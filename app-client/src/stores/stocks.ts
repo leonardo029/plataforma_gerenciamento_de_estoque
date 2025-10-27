@@ -59,6 +59,10 @@ export const useStocksStore = defineStore('stocks', {
     sectionItems: [] as SectionItem[],
     productItems: [] as ProductListItem[],
 
+    // Lazy-load flags
+    selectsLoaded: false,
+    productsLoaded: false,
+
     // Withdraw dialog
     withdrawDialog: false,
     withdrawValid: false,
@@ -69,14 +73,12 @@ export const useStocksStore = defineStore('stocks', {
 
   getters: {
     filteredStocks(state): StockListItem[] {
-      const term = state.search?.toLowerCase() || ''
-      if (!term) return state.stocks
-      return state.stocks.filter((s) =>
-        s.product.name.toLowerCase().includes(term) || s.batch.toLowerCase().includes(term)
-      )
+      // Server-side search; return items from server
+      return state.stocks
     },
     itemsLength(state): number {
-      return state.search ? (this.filteredStocks as StockListItem[]).length : state.totalItems
+      // Always rely on server-provided total
+      return state.totalItems
     },
     isEditing(state): boolean {
       return !!state.form?.id
@@ -100,15 +102,14 @@ export const useStocksStore = defineStore('stocks', {
 
   actions: {
     async init() {
-      await Promise.all([this.fetchStocks(), this.fetchSelectData()])
-      await this.onProductSearch('')
+      await this.fetchStocks()
     },
 
     async fetchStocks() {
       const sb = useSnackbarStore()
       try {
         this.loading = true
-        const { items, total } = await getStocks({ page: this.page, limit: this.itemsPerPage })
+        const { items, total } = await getStocks({ name: this.search || undefined, page: this.page, limit: this.itemsPerPage })
         this.stocks = items
         this.totalItems = total
       } catch (err: any) {
@@ -131,27 +132,50 @@ export const useStocksStore = defineStore('stocks', {
         this.shelfItems = shelves
         this.corridorItems = corridors
         this.sectionItems = sections
+        this.selectsLoaded = true
       } catch (err: any) {
         sb.error(err?.message || 'Erro ao carregar listas de localização/fornecedores')
       }
     },
 
-    async onProductSearch(q: string) {
+    async ensureSelectData() {
+      if (this.selectsLoaded && this.supplierItems.length && this.shelfItems.length && this.corridorItems.length && this.sectionItems.length) {
+        return
+      }
+      await this.fetchSelectData()
+    },
+
+    async fetchAllProducts() {
       try {
-        const { items } = await getProducts({ name: q || undefined, page: 1, limit: 10 })
-        this.productItems = items
+        const all: ProductListItem[] = []
+        let page = 1
+        const limit = 100
+        // Aggregate all pages until we reach total or last page is smaller than limit
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { items, total } = await getProducts({ page, limit })
+          all.push(...items)
+          if (all.length >= total || items.length < limit) break
+          page += 1
+        }
+        this.productItems = all
+        this.productsLoaded = true
       } catch {}
     },
 
-    openCreate() {
+    async openCreate() {
       this.resetForm()
+      await this.ensureSelectData()
+      if (!this.productsLoaded) {
+        await this.fetchAllProducts()
+      }
       this.dialog = true
-      this.onProductSearch('')
     },
 
     async openEdit(id: string) {
       const sb = useSnackbarStore()
       try {
+        await this.ensureSelectData()
         const detail: StockDetail = await getStockById(id)
         this.form = {
           id: detail.id,
@@ -274,7 +298,8 @@ export const useStocksStore = defineStore('stocks', {
 
     async setSearch(v: string) {
       this.search = v
-      // Local filter only; server fetch unchanged
+      this.page = 1
+      await this.fetchStocks()
     },
     async setPage(v: number) {
       this.page = v

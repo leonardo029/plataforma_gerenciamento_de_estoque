@@ -49,18 +49,18 @@ export const useUsersStore = defineStore('users', {
     cities: [] as CityItem[],
     streetTypes: [] as StreetTypeItem[],
     selectedStateCode: null as number | null,
+    // Cache flag to prevent duplicate requests for states/street types
+    referencesLoaded: false,
   }),
 
   getters: {
     filteredUsers(state): UserListItem[] {
-      const term = state.search?.toLowerCase() || ''
-      if (!term) return state.items
-      return state.items.filter(u =>
-        u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term)
-      )
+      // Server-side search; return items as received
+      return state.items
     },
     itemsLength(state): number {
-      return state.search ? (this.filteredUsers as UserListItem[]).length : state.total
+      // Always rely on server-provided total
+      return state.total
     },
     currentAddressLabels(state): string {
       const parts: string[] = []
@@ -89,7 +89,7 @@ export const useUsersStore = defineStore('users', {
       const sb = useSnackbarStore()
       try {
         this.loading = true
-        const res = await getUsers({ page: this.page, limit: this.limit })
+        const res = await getUsers({ name: this.search || undefined, page: this.page, limit: this.limit })
         this.items = res.items
         this.total = res.total
         const lastPage = Math.max(1, Math.ceil(this.total / this.limit))
@@ -104,11 +104,14 @@ export const useUsersStore = defineStore('users', {
     },
 
     async loadReferenceData() {
+      // Lazy-load states and street types; cache to avoid duplicate requests
+      if (this.referencesLoaded) return
       const sb = useSnackbarStore()
       try {
         const [states, streetTypes] = await Promise.all([getStates(), getStreetTypes()])
         this.states = states
         this.streetTypes = streetTypes
+        this.referencesLoaded = true
       } catch (err: any) {
         sb.error('Falha ao carregar listas de referência')
       }
@@ -133,7 +136,7 @@ export const useUsersStore = defineStore('users', {
       this.form = defaultForm()
       this.selectedStateCode = null
       this.cities = []
-      this.loadReferenceData()
+      await this.loadReferenceData()
       this.dialog = true
     },
 
@@ -268,7 +271,8 @@ export const useUsersStore = defineStore('users', {
     // Setters with side-effects
     async setSearch(v: string) {
       this.search = v
-      // filtro local; nada de fetch
+      this.page = 1
+      await this.fetchUsers()
     },
     async setPage(v: number) {
       this.page = v

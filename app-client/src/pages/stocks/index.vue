@@ -91,7 +91,6 @@
                     label="Produto"
                     :disabled="isEditing"
                     :rules="[rules.required]"
-                    @update:search="onProductSearch"
                     required
                   />
                 </v-col>
@@ -271,7 +270,6 @@ export default {
 
     async fetchStocks() { await this.stocksStore.fetchStocks() },
     async fetchSelectData() { await this.stocksStore.fetchSelectData() },
-    async onProductSearch(q: string) { await this.stocksStore.onProductSearch(q) },
     openCreate() { this.stocksStore.openCreate() },
     async openEdit(id: string) { await this.stocksStore.openEdit(id) },
 
