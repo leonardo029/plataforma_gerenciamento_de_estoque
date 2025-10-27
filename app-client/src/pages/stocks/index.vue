@@ -57,7 +57,6 @@
           <div class="pa-6 text-medium-emphasis">Nenhum estoque encontrado.</div>
         </template>
 
-        <!-- Refresh button next to Items per page -->
         <template #footer.prepend>
           <v-btn
             icon="mdi-refresh"
@@ -132,7 +131,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="dialog = false">Cancelar</v-btn>
+          <v-btn variant="text" @click="closeDialog">Cancelar</v-btn>
           <v-btn color="primary" :loading="saving" @click="onSubmit">Salvar</v-btn>
         </v-card-actions>
       </v-card>
@@ -151,47 +150,29 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="withdrawDialog = false">Cancelar</v-btn>
+          <v-btn variant="text" @click="closeWithdrawDialog">Cancelar</v-btn>
           <v-btn color="warning" :loading="withdrawing" @click="onWithdrawConfirm">Retirar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <AppSnackbar v-model="snackbar.show" :message="snackbar.message" :type="snackbar.type" />
+    <AppSnackbar />
   </div>
 </template>
 
 <script lang="ts">
-import type { StockListItem, StockDetail, StockCreatePayload, StockUpdatePayload } from '@/services/stocks'
-import { getStocks, getStockById, createStock, updateStock, withdrawStock, deleteStock } from '@/services/stocks'
-import type { SupplierListItem } from '@/services/suppliers'
-import { getSuppliers } from '@/services/suppliers'
-import type { ShelfItem, CorridorItem, SectionItem } from '@/services/stock-locations'
-import { getShelves, getCorridors, getSections } from '@/services/stock-locations'
-import type { ProductListItem } from '@/services/products'
-import { getProducts } from '@/services/products'
+import type { StockListItem } from '@/services/stocks'
+import { useStocksStore } from '@/stores/stocks'
 
-interface StockForm {
-  id?: string
-  product_id: string
-  batch: string
-  expiration_date: string
-  cost_price: number | null
-  sale_price: number | null
-  supplier_id: string
-  stock_quantity: number | null
-  isActivated: boolean
-  stock_location: {
-    shelf_id: string
-    corridor_id: string
-    section_id: string
-  }
-}
+type VFormRef = {
+  validate: () => Promise<boolean | { valid: boolean }> | boolean | { valid: boolean };
+  reset: () => void;
+  resetValidation: () => void;
+};
 
 export default {
   name: 'StocksPage',
   data() {
-    const self = this as any
     return {
       headers: [
         { title: 'Produto', key: 'product' },
@@ -202,74 +183,65 @@ export default {
         { title: 'Quantidade', key: 'stock_quantity' },
         { title: 'Ações', key: 'actions', sortable: false, align: 'end' },
       ] as const,
-      stocks: [] as StockListItem[],
-      loading: false,
-      search: '',
-      page: 1,
-      itemsPerPage: 10,
-      totalItems: 0,
-
-      dialog: false,
-      formValid: false,
-      formRef: null as any,
-      saving: false,
-      form: {
-        product_id: '',
-        batch: '',
-        expiration_date: '',
-        cost_price: 0,
-        sale_price: 0,
-        supplier_id: '',
-        stock_quantity: 0,
-        isActivated: true,
-        stock_location: { shelf_id: '', corridor_id: '', section_id: '' },
-      } as StockForm,
-
-      supplierItems: [] as SupplierListItem[],
-      shelfItems: [] as ShelfItem[],
-      corridorItems: [] as CorridorItem[],
-      sectionItems: [] as SectionItem[],
-      productItems: [] as ProductListItem[],
-
-      withdrawDialog: false,
-      withdrawFormRef: null as any,
-      withdrawValid: false,
-      withdrawing: false,
-      selectedStock: null as StockListItem | null,
-      withdrawQuantity: 1,
-
-      snackbar: { show: false, message: '', type: 'success' as 'success' | 'error' | 'info' },
-
-      rules: {
-        required: (v: any) => !!v || 'Campo obrigatório',
-        max45: (v: string) => !v || v.length <= 45 || 'Máx. 45 caracteres',
-        min0: (v: any) => v === null || v === undefined || Number(v) >= 0 || 'Mínimo 0',
-        min1: (v: any) => v === null || v === undefined || Number(v) >= 1 || 'Mínimo 1',
-        decimal2: (v: any) => {
-          if (v === null || v === undefined || v === '') return true
-          const num = Number(v)
-          if (isNaN(num)) return 'Informe um número válido'
-          const [intPart, decPart] = String(num).split('.')
-          return !decPart || decPart.length <= 2 || 'Máx. 2 casas decimais'
-        },
-      },
     }
   },
   computed: {
-    filteredStocks(): StockListItem[] {
-      const term = this.search?.toLowerCase() || ''
-      if (!term) return this.stocks
-      return this.stocks.filter((s) =>
-        s.product.name.toLowerCase().includes(term) || s.batch.toLowerCase().includes(term)
-      )
+    stocksStore() { return useStocksStore() },
+
+    // list & pagination
+    filteredStocks(): StockListItem[] { return this.stocksStore.filteredStocks },
+    itemsLength(): number { return this.stocksStore.itemsLength },
+    loading(): boolean { return this.stocksStore.loading },
+    search: {
+      get(): string { return this.stocksStore.search },
+      set(v: string) { this.stocksStore.search = v },
     },
-    // Adiciona itemsLength para suportar paginação correta durante busca local
-    itemsLength(): number {
-      return this.search ? this.filteredStocks.length : this.totalItems
+    page: {
+      get(): number { return this.stocksStore.page },
+      set(v: number) { this.stocksStore.page = v },
     },
-    isEditing(): boolean {
-      return !!this.form.id
+    itemsPerPage: {
+      get(): number { return this.stocksStore.itemsPerPage },
+      set(v: number) { this.stocksStore.itemsPerPage = v },
     },
+    totalItems(): number { return this.stocksStore.totalItems },
+
+    // dialog & form
+    dialog: {
+      get(): boolean { return this.stocksStore.dialog },
+      set(v: boolean) { this.stocksStore.dialog = v },
+    },
+    formValid: {
+      get(): boolean { return this.stocksStore.formValid },
+      set(v: boolean) { this.stocksStore.formValid = v },
+    },
+    saving(): boolean { return this.stocksStore.saving },
+    form() { return this.stocksStore.form },
+
+    // selects
+    supplierItems() { return this.stocksStore.supplierItems },
+    shelfItems() { return this.stocksStore.shelfItems },
+    corridorItems() { return this.stocksStore.corridorItems },
+    sectionItems() { return this.stocksStore.sectionItems },
+    productItems() { return this.stocksStore.productItems },
+
+    // withdraw dialog
+    withdrawDialog: {
+      get(): boolean { return this.stocksStore.withdrawDialog },
+      set(v: boolean) { this.stocksStore.withdrawDialog = v },
+    },
+    withdrawValid: {
+      get(): boolean { return this.stocksStore.withdrawValid },
+      set(v: boolean) { this.stocksStore.withdrawValid = v },
+    },
+    withdrawing(): boolean { return this.stocksStore.withdrawing },
+    withdrawQuantity: {
+      get(): number { return this.stocksStore.withdrawQuantity },
+      set(v: number) { this.stocksStore.withdrawQuantity = v },
+    },
+
+    rules() { return this.stocksStore.rules },
+    isEditing(): boolean { return this.stocksStore.isEditing },
   },
   methods: {
     formatCurrency(value: any): string {
@@ -296,174 +268,63 @@ export default {
       if (n <= 50) return 'warning'
       return ''
     },
-    async fetchStocks(): Promise<void> {
-      try {
-        this.loading = true
-        const { items, total } = await getStocks({ page: this.page, limit: this.itemsPerPage })
-        this.stocks = items
-        this.totalItems = total
-      } catch (err: any) {
-        this.showError(err?.message || 'Erro ao carregar estoques')
-      } finally {
-        this.loading = false
-      }
+
+    async fetchStocks() { await this.stocksStore.fetchStocks() },
+    async fetchSelectData() { await this.stocksStore.fetchSelectData() },
+    async onProductSearch(q: string) { await this.stocksStore.onProductSearch(q) },
+    openCreate() { this.stocksStore.openCreate() },
+    async openEdit(id: string) { await this.stocksStore.openEdit(id) },
+
+    async onSubmit(): Promise<void> {
+      const form = this.$refs.formRef as unknown as VFormRef | undefined
+      const result = form ? await form.validate?.() : false
+      const isValid = typeof result === 'boolean' ? result : !!(result as any)?.valid
+      if (!isValid) return
+      await this.stocksStore.submit()
     },
-    async fetchSelectData(): Promise<void> {
-      try {
-        const [suppliers, shelves, corridors, sections] = await Promise.all([
-          getSuppliers(),
-          getShelves(),
-          getCorridors(),
-          getSections(),
-        ])
-        this.supplierItems = suppliers
-        this.shelfItems = shelves
-        this.corridorItems = corridors
-        this.sectionItems = sections
-      } catch (err: any) {
-        this.showError(err?.message || 'Erro ao carregar listas de localização/fornecedores')
-      }
+
+    openWithdraw(item: StockListItem) { this.stocksStore.openWithdraw(item) },
+    async onWithdrawConfirm(): Promise<void> {
+      const form = this.$refs.withdrawFormRef as unknown as VFormRef | undefined
+      const result = form ? await form.validate?.() : false
+      const isValid = typeof result === 'boolean' ? result : !!(result as any)?.valid
+      if (!isValid) return
+      await this.stocksStore.withdrawConfirm()
     },
-    async onProductSearch(q: string): Promise<void> {
+
+    async onDelete(id: string) { await this.stocksStore.deleteStockById(id) },
+
+    closeDialog(): void {
+      this.stocksStore.closeDialog()
       try {
-        const { items } = await getProducts({ name: q || undefined, page: 1, limit: 10 })
-        this.productItems = items
+        const form = this.$refs.formRef as unknown as VFormRef | undefined
+        form?.reset?.()
+        form?.resetValidation?.()
       } catch {}
     },
-    openCreate(): void {
-      this.resetForm()
-      this.dialog = true
-      this.onProductSearch('')
-    },
-    async openEdit(id: string): Promise<void> {
+    closeWithdrawDialog(): void {
+      this.stocksStore.closeWithdrawDialog()
       try {
-        const detail: StockDetail = await getStockById(id)
-        this.form = {
-          id: detail.id,
-          product_id: detail.product.id,
-          batch: detail.batch,
-          expiration_date: detail.expiration_date?.slice(0, 10) || '',
-          cost_price: detail.cost_price,
-          sale_price: detail.sale_price,
-          supplier_id: detail.supplier.id,
-          stock_quantity: detail.stock_quantity,
-          isActivated: true,
-          stock_location: {
-            shelf_id: detail.stock_location?.shelf?.id || '',
-            corridor_id: detail.stock_location?.corridor?.id || '',
-            section_id: detail.stock_location?.section?.id || '',
-          },
-        }
-        this.dialog = true
-      } catch (err: any) {
-        this.showError(err?.message || 'Falha ao carregar estoque')
-      }
-    },
-    async onSubmit(): Promise<void> {
-      const form = this.$refs.formRef as { validate: () => boolean } | undefined
-      if (!form?.validate?.()) return
-      this.saving = true
-      try {
-        if (this.form.id) {
-          const payload: StockUpdatePayload = {
-            batch: this.form.batch,
-            cost_price: Number(this.form.cost_price),
-            sale_price: Number(this.form.sale_price),
-            supplier_id: this.form.supplier_id,
-            stock_quantity: Number(this.form.stock_quantity),
-            stock_location: { ...this.form.stock_location },
-          }
-          await updateStock(this.form.id, payload)
-          this.showSuccess('Estoque atualizado com sucesso')
-        } else {
-          const payload: StockCreatePayload = {
-            product_id: this.form.product_id,
-            batch: this.form.batch,
-            expiration_date: this.form.expiration_date,
-            cost_price: Number(this.form.cost_price),
-            sale_price: Number(this.form.sale_price),
-            supplier_id: this.form.supplier_id,
-            stock_quantity: Number(this.form.stock_quantity),
-            isActivated: this.form.isActivated,
-            stock_location: { ...this.form.stock_location },
-          }
-          await createStock(payload)
-          this.showSuccess('Estoque criado com sucesso')
-        }
-        this.dialog = false
-        await this.fetchStocks()
-      } catch (err: any) {
-        this.showError(err?.message || 'Falha ao salvar estoque')
-      } finally {
-        this.saving = false
-      }
-    },
-    async onWithdrawConfirm(): Promise<void> {
-      const withdrawForm = this.$refs.withdrawFormRef as { validate: () => boolean } | undefined
-      if (!withdrawForm?.validate?.() || !this.selectedStock) return
-      this.withdrawing = true
-      try {
-        await withdrawStock({ stock_id: this.selectedStock.id, stock_quantity: Number(this.withdrawQuantity) })
-        this.showSuccess('Retirada realizada com sucesso')
-        this.withdrawDialog = false
-        await this.fetchStocks()
-      } catch (err: any) {
-        this.showError(err?.message || 'Falha ao retirar do estoque')
-      } finally {
-        this.withdrawing = false
-      }
-    },
-    openWithdraw(item: StockListItem): void {
-      this.selectedStock = item
-      this.withdrawQuantity = 0
-      this.withdrawDialog = true
-    },
-    async onDelete(id: string): Promise<void> {
-      try {
-        await deleteStock(id)
-        this.showSuccess('Estoque removido com sucesso')
-        await this.fetchStocks()
-      } catch (err: any) {
-        this.showError(err?.message || 'Falha ao remover estoque')
-      }
-    },
-    resetForm(): void {
-      this.form = {
-        product_id: '',
-        batch: '',
-        expiration_date: '',
-        cost_price: 0,
-        sale_price: 0,
-        supplier_id: '',
-        stock_quantity: 0,
-        isActivated: true,
-        stock_location: { shelf_id: '', corridor_id: '', section_id: '' },
-      } as StockForm
-    },
-    showSuccess(message: string): void {
-      this.snackbar = { show: true, message, type: 'success' }
-    },
-    showError(message: string): void {
-      this.snackbar = { show: true, message, type: 'error' }
+        const form = this.$refs.withdrawFormRef as unknown as VFormRef | undefined
+        form?.reset?.()
+        form?.resetValidation?.()
+      } catch {}
     },
   },
   watch: {
-    async search() {
-      // busca local nos itens carregados
-      // quando necessário, poderemos fazer busca server-side
-    },
-    async page() {
-      await this.fetchStocks()
-    },
-    async itemsPerPage() {
-      this.page = 1
-      await this.fetchStocks()
-    },
+    async search() { await this.stocksStore.setSearch(this.search) },
+    async page() { await this.stocksStore.setPage(this.page) },
+    async itemsPerPage() { await this.stocksStore.setItemsPerPage(this.itemsPerPage) },
   },
   async mounted() {
-    await Promise.all([this.fetchStocks(), this.fetchSelectData()])
-    // Pré-carregar alguns produtos para o autocomplete
-    await this.onProductSearch('')
+    await this.stocksStore.init()
   },
 }
 </script>
+
+<style scoped>
+.stocks-page {
+  display: flex;
+  flex-direction: column;
+}
+</style>
