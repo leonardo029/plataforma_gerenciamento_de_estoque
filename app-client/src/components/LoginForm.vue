@@ -50,7 +50,7 @@ import { useSnackbarStore } from '@/stores/snackbar'
 import AppSnackbar from '@/components/AppSnackbar.vue'
 
 export default {
-  name: 'LoginView',
+  name: 'LoginForm',
 
   data() {
     return {

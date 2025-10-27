@@ -1,5 +1,5 @@
 <template>
-  <LoginView />
+  <LoginForm />
 </template>
 
 <script lang="ts">

@@ -11,10 +11,13 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppBar: typeof import('./components/appBar/AppBar.vue')['default']
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     AppSnackbar: typeof import('./components/AppSnackbar.vue')['default']
-    LoginView: typeof import('./components/LoginView.vue')['default']
+    LoginForm: typeof import('./components/LoginForm.vue')['default']
+    MenuVertical: typeof import('./components/MenuVertical.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UserInfo: typeof import('./components/appBar/UserInfo.vue')['default']
   }
 }
