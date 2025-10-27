@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere } from 'typeorm';
+import { FindOptionsWhere, ILike } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { StockLocationService } from '../stock-location/stock-location.service';
 import { CreateStockTransactionDto } from '../stock-transaction/dto';
@@ -212,6 +212,9 @@ export class StockService {
     const where: FindOptionsWhere<StockEntity> = { isActivated: true };
     if (filters.id) {
       where.id = filters.id;
+    }
+    if (filters.name) {
+      where.product = { name: ILike(`%${filters.name}%`) };
     }
 
     const [stocks, total] = await this.stockRepository.findAndCount({
