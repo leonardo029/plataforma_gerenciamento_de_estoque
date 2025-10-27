@@ -12,6 +12,7 @@ import { AddressService } from '../address/address.service';
 import { Transactional } from 'typeorm-transactional';
 import { FindOptionsWhere, ILike } from 'typeorm';
 import { UserEntity } from './entities';
+import { PaginatedResource } from 'src/common/resources';
 
 @Injectable()
 export class UserService {
@@ -103,12 +104,9 @@ export class UserService {
     return new FindByIdUserResource(user);
   }
 
-  async findAll(filters: FindUsersQueryDto): Promise<{
-    items: FindAllUserResource[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
+  async findAll(
+    filters: FindUsersQueryDto,
+  ): Promise<PaginatedResource<FindAllUserResource>> {
     const page = filters.page ?? 1;
     const limit = filters.limit ?? 10;
 
@@ -125,12 +123,14 @@ export class UserService {
       take: limit,
       order: { name: 'ASC' },
     });
-    return {
-      items: users.map((user) => new FindAllUserResource(user)),
-      total,
+
+    return new PaginatedResource(
+      users,
+      FindAllUserResource,
       page,
       limit,
-    };
+      total,
+    );
   }
 
   async findByEmail(email: string): Promise<FindByEmailUserResource> {
