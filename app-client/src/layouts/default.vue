@@ -38,12 +38,11 @@
         prepend-icon="mdi-logout"
         @click="logout"
       />
-      <!-- Adicione mais itens de menu aqui conforme criarmos novas telas -->
     </v-list>
   </v-navigation-drawer>
 
   <v-app-bar app>
-    <v-app-bar-nav-icon @click="drawer = !drawer" />
+    <v-app-bar-nav-icon @click="toggleDrawer" />
     <v-app-bar-title style="cursor: pointer" @click="goDashboard">Product Manager</v-app-bar-title>
   </v-app-bar>
 
@@ -56,15 +55,16 @@
 
 <script lang="ts">
 import { useAuthStore } from '@/stores/auth'
+import { useLayoutStore } from '@/stores/layout'
 export default {
   name: "DefaultLayout",
-  data() {
-    return {
-      drawer: true,
-    };
-  },
   computed: {
     authStore() { return useAuthStore() },
+    layoutStore() { return useLayoutStore() },
+    drawer: {
+      get() { return this.layoutStore.drawer },
+      set(v:any) { this.layoutStore.drawer = v },
+    },
     userName(): string {
       return this.authStore.user?.name ?? 'Usuário'
     },
@@ -72,25 +72,18 @@ export default {
       return this.authStore.user?.email ?? ''
     },
     isAdmin(): boolean {
-      try {
-        const userStr = localStorage.getItem('user')
-        const user = userStr ? JSON.parse(userStr) : null
-        return String(user?.role ?? '').toLowerCase() === 'admin'
-      } catch (e) {
-        return false
-      }
+      return String(this.authStore.user?.role ?? '').toLowerCase() === 'admin'
     }
   },
   methods: {
+    toggleDrawer() {
+      this.layoutStore.toggleDrawer()
+    },
     goDashboard() {
-      this.$router.push('/dashboard')
+      this.layoutStore.goDashboard()
     },
     logout() {
-      try {
-        this.authStore.logout()
-      } finally {
-        this.$router.push('/')
-      }
+      this.authStore.logoutAndRedirect()
     }
   }
 };
