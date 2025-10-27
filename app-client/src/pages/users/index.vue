@@ -41,7 +41,6 @@
         <!-- Removido botão de excluir -->
       </template>
 
-      <!-- Refresh button next to Items per page -->
       <template #footer.prepend>
         <v-btn
           icon="mdi-refresh"
@@ -162,16 +161,14 @@
       </v-card>
     </v-dialog>
 
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="3000">
-      {{ snackbar.text }}
-    </v-snackbar>
+    <AppSnackbar />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted } from 'vue';
-import { getUsers, getUserById, createUser, updateUser, deleteUser, type UserListItem, type UserUpdatePayload, type UserCreatePayload } from '@/services/users';
-import { getStates, getCitiesByState, getStreetTypes, type StateItem, type CityItem, type StreetTypeItem } from '@/services/locations';
+import { ref, computed, watch, onMounted, toRef } from 'vue'
+import { useUsersStore } from '@/stores/users'
+import type { UserListItem } from '@/services/users'
 
 const headers = [
   { title: 'Nome', key: 'name' },
@@ -179,271 +176,83 @@ const headers = [
   { title: 'Papel', key: 'role' },
   { title: 'Ativo', key: 'isActivated' },
   { title: 'Ações', key: 'actions', sortable: false },
-];
+]
 
-const loading = ref(false);
-const search = ref('');
-const items = ref<UserListItem[]>([]);
-const page = ref(1);
-const limit = ref(10);
-const total = ref(0);
-const itemsLength = computed(() => (search.value ? filteredUsers.value.length : total.value));
+const usersStore = useUsersStore()
 
-const filteredUsers = computed(() => {
-  const term = search.value.toLowerCase();
-  if (!term) return items.value;
-  return items.value.filter(u =>
-    u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term)
-  );
-});
+// list & pagination
+const filteredUsers = computed(() => usersStore.filteredUsers)
+const loading = toRef(usersStore, 'loading')
+const search = toRef(usersStore, 'search')
+const page = toRef(usersStore, 'page')
+const limit = toRef(usersStore, 'limit')
+const itemsLength = computed(() => usersStore.itemsLength)
 
- const dialog = ref(false);
- const isEdit = ref(false);
- const selectedUserId = ref<string | null>(null);
+// dialog & form
+const dialog = toRef(usersStore, 'dialog')
+const isEdit = toRef(usersStore, 'isEdit')
+const formRef = ref()
+const userForm = toRef(usersStore, 'form')
+const rules = usersStore.rules
 
- const roles = [
-   { title: 'Administrador', value: 'admin' },
-   { title: 'Usuário', value: 'user' },
- ];
+// reference lists (via users store)
+const states = toRef(usersStore, 'states')
+const cities = toRef(usersStore, 'cities')
+const streetTypes = toRef(usersStore, 'streetTypes')
+const selectedStateCode = toRef(usersStore, 'selectedStateCode')
+const currentAddressLabels = computed(() => usersStore.currentAddressLabels)
 
- const states = ref<StateItem[]>([]);
- const cities = ref<CityItem[]>([]);
- const streetTypes = ref<StreetTypeItem[]>([]);
- const selectedStateCode = ref<number | null>(null);
+const roles = [
+  { title: 'Administrador', value: 'admin' },
+  { title: 'Usuário', value: 'user' },
+]
 
- const formRef = ref();
- const userForm = ref<{
-   name: string;
-   email: string;
-   password: string;
-   isActivated: boolean;
-   role: 'admin' | 'user' | null;
-   contact: { country_code: number | null; ddd: number | null; phone_number: string };
-   address: { street: string; idStreetType: string | null; complement: string | null; cep: string; number: number | null; neighborhood: string; idCity: number | null };
- }>({
-   name: '',
-   email: '',
-   password: '',
-   isActivated: true,
-   role: null,
-   contact: { country_code: null, ddd: null, phone_number: '' },
-   address: { street: '', idStreetType: null, complement: '', cep: '', number: null, neighborhood: '', idCity: null },
- })
-
- const currentAddressLabels = computed(() => {
-   if (!isEdit.value) return '';
-   const parts: string[] = [];
-   if (userForm.value.address.street) parts.push(userForm.value.address.street);
-   if (userForm.value.address.neighborhood) parts.push(userForm.value.address.neighborhood);
-   return parts.join(' • ');
- })
-
- const rules = {
-   required: (v: any) => (!!v || v === 0) || 'Obrigatório',
-   email: (v: string) => (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Email inválido'),
-   minPassword: (v: string) => (v?.length >= 8 || 'Mínimo 8 caracteres'),
-   positiveInt: (v: number) => (v == null || (Number.isInteger(+v) && +v > 0)) || 'Número inválido',
-   phone: (v: string) => (v?.length >= 1 && v?.length <= 15) || '1 a 15 caracteres',
-   cep: (v: string) => (/^\d{8}$/.test(v) || 'CEP deve ter 8 dígitos'),
- };
-
- async function fetchUsers() {
-  loading.value = true;
-  try {
-    const res = await getUsers({ page: page.value, limit: limit.value });
-    items.value = res.items;
-    total.value = res.total;
-    const lastPage = Math.max(1, Math.ceil(total.value / limit.value));
-    if (page.value > lastPage) {
-      page.value = lastPage;
-      // watcher on page will refetch
-    }
-  } catch (err: any) {
-    showError(err?.message || 'Falha ao carregar usuários');
-  } finally {
-    loading.value = false;
-  }
+async function fetchUsers() {
+  await usersStore.fetchUsers()
 }
- 
-watch(page, async () => {
-  await fetchUsers();
-});
 
-watch(limit, async () => {
-  page.value = 1;
-  await fetchUsers();
-});
+function openCreate() {
+  usersStore.openCreate()
+}
 
- function resetForm() {
-   userForm.value = {
-     name: '',
-     email: '',
-     password: '',
-     isActivated: true,
-     role: null,
-     contact: { country_code: null, ddd: null, phone_number: '' },
-     address: { street: '', idStreetType: null, complement: '', cep: '', number: null, neighborhood: '', idCity: null },
-   };
-   selectedStateCode.value = null;
-   cities.value = [];
- }
+async function openEdit(item: UserListItem) {
+  await usersStore.openEdit(item.id)
+}
 
- async function loadReferenceData() {
-   try {
-     [states.value, streetTypes.value] = await Promise.all([
-       getStates(),
-       getStreetTypes(),
-     ]);
-   } catch (err: any) {
-     showError('Falha ao carregar listas de referência');
-   }
- }
+async function submit() {
+  const form = formRef.value as any
+  const valid = await (form?.validate?.() ?? true)
+  if (valid === false) return
+  await usersStore.submit()
+}
 
- async function openCreate() {
-   isEdit.value = false;
-   selectedUserId.value = null;
-   resetForm();
-   await loadReferenceData();
-   dialog.value = true;
- }
+async function onDelete(item: UserListItem) {
+  await usersStore.deleteUserById(item.id)
+}
 
- async function openEdit(item: UserListItem) {
-   isEdit.value = true;
-   selectedUserId.value = item.id;
-   resetForm();
-   await loadReferenceData();
-   try {
-     const detail = await getUserById(item.id);
-     userForm.value.name = detail.name;
-     userForm.value.email = detail.email;
-     userForm.value.isActivated = detail.isActivated;
-     userForm.value.role = detail.role;
-     if (detail.contact) {
-       userForm.value.contact.country_code = detail.contact.countryCode ?? null;
-       userForm.value.contact.ddd = detail.contact.ddd ?? null;
-       userForm.value.contact.phone_number = detail.contact.phoneNumber ?? '';
-     }
-     if (detail.address) {
-       userForm.value.address.street = detail.address.street ?? '';
-       userForm.value.address.complement = detail.address.complement ?? '';
-       userForm.value.address.cep = detail.address.cep ?? '';
-       userForm.value.address.number = detail.address.number ?? null;
-       userForm.value.address.neighborhood = detail.address.neighborhood ?? '';
-       userForm.value.address.idStreetType = detail.address.idStreetType ?? null;
-       userForm.value.address.idCity = detail.address.idCity ?? null;
-     }
-     dialog.value = true;
-   } catch (err: any) {
-     showError('Falha ao carregar detalhes do usuário');
-   }
- }
+function closeDialog() {
+  usersStore.closeDialog()
+  try {
+    const form = formRef.value as any
+    form?.reset?.()
+    form?.resetValidation?.()
+  } catch {}
+}
 
- watch(selectedStateCode, async (code) => {
-   if (!code) {
-     cities.value = [];
-     userForm.value.address.idCity = null;
-     return;
-   }
-   try {
-     cities.value = await getCitiesByState(code);
-   } catch (err: any) {
-     showError('Falha ao carregar cidades');
-   }
- });
+watch(page, async (p) => {
+  await usersStore.setPage(p)
+})
 
- async function submit() {
-   const form = formRef.value as any;
-   const valid = await (form?.validate?.() ?? true);
-   if (valid === false) return;
+watch(limit, async (l) => {
+  await usersStore.setLimit(l)
+})
 
-   try {
-     if (isEdit.value && selectedUserId.value) {
-       const payload: UserUpdatePayload = {};
-       payload.name = userForm.value.name || undefined;
-       payload.email = userForm.value.email || undefined;
-       if (userForm.value.password && userForm.value.password.length >= 8) {
-         payload.password = userForm.value.password;
-       }
-       payload.isActivated = userForm.value.isActivated;
+watch(selectedStateCode, async (code) => {
+  await usersStore.setSelectedStateCode(code ?? null)
+})
 
-       const contact: any = {};
-       if (userForm.value.contact.country_code != null) contact.country_code = userForm.value.contact.country_code;
-       if (userForm.value.contact.ddd != null) contact.ddd = userForm.value.contact.ddd;
-       if (userForm.value.contact.phone_number) contact.phone_number = userForm.value.contact.phone_number;
-       if (Object.keys(contact).length) payload.contact = contact;
-
-       const address: any = {};
-       if (userForm.value.address.street) address.street = userForm.value.address.street;
-       if (userForm.value.address.complement != null) address.complement = userForm.value.address.complement;
-       if (userForm.value.address.cep) address.cep = userForm.value.address.cep;
-       if (userForm.value.address.number != null) address.number = userForm.value.address.number;
-       if (userForm.value.address.neighborhood) address.neighborhood = userForm.value.address.neighborhood;
-       if (userForm.value.address.idCity) address.idCity = userForm.value.address.idCity;
-       if (userForm.value.address.idStreetType) address.idStreetType = userForm.value.address.idStreetType;
-       if (Object.keys(address).length) payload.address = address;
-
-       await updateUser(selectedUserId.value, payload);
-       showSuccess('Usuário atualizado com sucesso');
-     } else {
-       if (!userForm.value.role || !userForm.value.address.idCity || !userForm.value.address.idStreetType) {
-         showError('Preencha Papel, Cidade e Tipo de Logradouro');
-         return;
-       }
-       const payload: UserCreatePayload = {
-         name: userForm.value.name,
-         email: userForm.value.email,
-         password: userForm.value.password,
-         isActivated: userForm.value.isActivated,
-         role: userForm.value.role,
-         contact: {
-           country_code: userForm.value.contact.country_code ?? 55,
-           ddd: userForm.value.contact.ddd ?? 11,
-           phone_number: userForm.value.contact.phone_number,
-         },
-         address: {
-           street: userForm.value.address.street,
-           idStreetType: userForm.value.address.idStreetType,
-           complement: userForm.value.address.complement ?? '',
-           cep: userForm.value.address.cep,
-           number: userForm.value.address.number ?? null,
-           neighborhood: userForm.value.address.neighborhood,
-           idCity: userForm.value.address.idCity,
-         },
-       };
-       await createUser(payload);
-       showSuccess('Usuário criado com sucesso');
-     }
-     dialog.value = false;
-     await fetchUsers();
-   } catch (err: any) {
-     showError(err?.message || 'Falha ao salvar usuário');
-   }
- }
-
- async function onDelete(item: UserListItem) {
-   if (!confirm(`Deseja excluir o usuário ${item.name}?`)) return;
-   try {
-     await deleteUser(item.id);
-     showSuccess('Usuário excluído com sucesso');
-     await fetchUsers();
-   } catch (err: any) {
-     showError('Falha ao excluir usuário');
-   }
- }
-
- const snackbar = ref({ show: false, color: 'success', text: '' });
- function showSuccess(text: string) {
-   snackbar.value = { show: true, color: 'success', text };
- }
- function showError(text: string) {
-   snackbar.value = { show: true, color: 'error', text };
- }
-
- function closeDialog() {
-   dialog.value = false;
- }
-
- onMounted(async () => {
-   await fetchUsers();
- });
+onMounted(async () => {
+  await usersStore.init()
+  await usersStore.loadReferenceData()
+})
 </script>
