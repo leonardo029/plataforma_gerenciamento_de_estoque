@@ -165,97 +165,101 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-import { ref, computed, watch, onMounted, toRef } from 'vue'
+<script lang="ts">
+import { mapStores } from 'pinia'
 import { useUsersStore } from '@/stores/users'
 import type { UserListItem } from '@/services/users'
 
-const headers = [
-  { title: 'Nome', key: 'name' },
-  { title: 'Email', key: 'email' },
-  { title: 'Papel', key: 'role' },
-  { title: 'Ativo', key: 'isActivated' },
-  { title: 'Ações', key: 'actions', sortable: false },
-]
-
-const usersStore = useUsersStore()
-
-// list & pagination
-const filteredUsers = computed(() => usersStore.filteredUsers)
-const loading = toRef(usersStore, 'loading')
-const search = toRef(usersStore, 'search')
-const page = toRef(usersStore, 'page')
-const limit = toRef(usersStore, 'limit')
-const itemsLength = computed(() => usersStore.itemsLength)
-
-// dialog & form
-const dialog = toRef(usersStore, 'dialog')
-const isEdit = toRef(usersStore, 'isEdit')
-const formRef = ref()
-const userForm = toRef(usersStore, 'form')
-const rules = usersStore.rules
-
-// reference lists (via users store)
-const states = toRef(usersStore, 'states')
-const cities = toRef(usersStore, 'cities')
-const streetTypes = toRef(usersStore, 'streetTypes')
-const selectedStateCode = toRef(usersStore, 'selectedStateCode')
-const currentAddressLabels = computed(() => usersStore.currentAddressLabels)
-
-const roles = [
-  { title: 'Administrador', value: 'admin' },
-  { title: 'Usuário', value: 'user' },
-]
-
-async function fetchUsers() {
-  await usersStore.fetchUsers()
+type VFormRef = {
+  validate?: () => Promise<boolean | { valid: boolean }> | boolean | { valid: boolean }
+  reset?: () => void
+  resetValidation?: () => void
 }
 
-function openCreate() {
-  usersStore.openCreate()
+export default {
+  name: 'UsersPage',
+  data() {
+    return {
+      headers: [
+        { title: 'Nome', key: 'name' },
+        { title: 'Email', key: 'email' },
+        { title: 'Papel', key: 'role' },
+        { title: 'Ativo', key: 'isActivated' },
+        { title: 'Ações', key: 'actions', sortable: false },
+      ] as const,
+      roles: [
+        { title: 'Administrador', value: 'admin' },
+        { title: 'Usuário', value: 'user' },
+      ] as Array<{ title: string; value: string }>,
+    }
+  },
+  computed: {
+    ...mapStores(useUsersStore),
+    // list & pagination
+    filteredUsers(): UserListItem[] { return this.usersStore.filteredUsers },
+    loading(): boolean { return this.usersStore.loading },
+    search: {
+      get(): string { return this.usersStore.search },
+      set(v: string) { this.usersStore.search = v },
+    },
+    page: {
+      get(): number { return this.usersStore.page },
+      set(v: number) { this.usersStore.page = v },
+    },
+    limit: {
+      get(): number { return this.usersStore.limit },
+      set(v: number) { this.usersStore.limit = v },
+    },
+    itemsLength(): number { return this.usersStore.itemsLength },
+
+    // dialog & form
+    dialog: {
+      get(): boolean { return this.usersStore.dialog },
+      set(v: boolean) { this.usersStore.dialog = v },
+    },
+    isEdit(): boolean { return this.usersStore.isEdit },
+    userForm() { return this.usersStore.form },
+    rules() { return this.usersStore.rules },
+
+    // reference lists
+    states() { return this.usersStore.states },
+    cities() { return this.usersStore.cities },
+    streetTypes() { return this.usersStore.streetTypes },
+    selectedStateCode: {
+      get(): number | null { return this.usersStore.selectedStateCode },
+      set(v: number | null) { this.usersStore.selectedStateCode = v },
+    },
+    currentAddressLabels(): string { return this.usersStore.currentAddressLabels },
+  },
+  methods: {
+    async fetchUsers(): Promise<void> { await this.usersStore.fetchUsers() },
+    openCreate(): void { this.usersStore.openCreate() },
+    async openEdit(item: UserListItem): Promise<void> { await this.usersStore.openEdit(item.id) },
+    async submit(): Promise<void> {
+      const form = this.$refs.formRef as VFormRef | undefined
+      const res = await (form?.validate?.() ?? true)
+      const valid = typeof res === 'boolean' ? res : !!(res as any)?.valid
+      if (!valid) return
+      await this.usersStore.submit()
+    },
+    async onDelete(item: UserListItem): Promise<void> { await this.usersStore.deleteUserById(item.id) },
+    closeDialog(): void {
+      this.usersStore.closeDialog()
+      try {
+        const form = this.$refs.formRef as VFormRef | undefined
+        form?.reset?.()
+        form?.resetValidation?.()
+      } catch {}
+    },
+  },
+  watch: {
+    async page(newVal: number) { await this.usersStore.setPage(newVal) },
+    async limit(newVal: number) { await this.usersStore.setLimit(newVal) },
+    async search(newVal: string) { await this.usersStore.setSearch(newVal) },
+    async selectedStateCode(code: number | null) { await this.usersStore.setSelectedStateCode(code ?? null) },
+  },
+  async mounted() {
+    await this.usersStore.init()
+  },
 }
-
-async function openEdit(item: UserListItem) {
-  await usersStore.openEdit(item.id)
-}
-
-async function submit() {
-  const form = formRef.value as any
-  const valid = await (form?.validate?.() ?? true)
-  if (valid === false) return
-  await usersStore.submit()
-}
-
-async function onDelete(item: UserListItem) {
-  await usersStore.deleteUserById(item.id)
-}
-
-function closeDialog() {
-  usersStore.closeDialog()
-  try {
-    const form = formRef.value as any
-    form?.reset?.()
-    form?.resetValidation?.()
-  } catch {}
-}
-
-watch(page, async (p) => {
-  await usersStore.setPage(p)
-})
-
-watch(limit, async (l) => {
-  await usersStore.setLimit(l)
-})
-
-watch(search, async (s) => {
-  await usersStore.setSearch(s)
-})
-
-watch(selectedStateCode, async (code) => {
-  await usersStore.setSelectedStateCode(code ?? null)
-})
-
-onMounted(async () => {
-  await usersStore.init()
-})
 </script>

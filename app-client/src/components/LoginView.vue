@@ -43,46 +43,45 @@
   </v-container>
 </template>
 
-<script>
+<script lang="ts">
+import { mapStores } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
-import AppSnackbar from '@/components/AppSnackbar.vue'
 import { useSnackbarStore } from '@/stores/snackbar'
+import AppSnackbar from '@/components/AppSnackbar.vue'
 
 export default {
-  name: "LoginView",
-  components: { AppSnackbar },
+  name: 'LoginView',
 
   data() {
     return {
-      email: '',
-      password: '',
-      showPassword: false,
-      isValid: false,
+      email: '' as string,
+      password: '' as string,
+      showPassword: false as boolean,
+      isValid: false as boolean,
     }
   },
 
   computed: {
-    authStore() { return useAuthStore() },
-    snackbarStore() { return useSnackbarStore() },
-    rules() {
+    ...mapStores(useAuthStore, useSnackbarStore),
+    rules(): { required: (v: string) => true | string; email: (v: string) => true | string } {
       return {
-        required: (v) => !!v || 'Campo obrigatório',
-        email: (v) => /.+@.+\..+/.test(v) || 'E-mail inválido',
+        required: (v: string) => !!v || 'Campo obrigatório',
+        email: (v: string) => /.+@.+\..+/.test(v) || 'E-mail inválido',
       }
     },
-    snackbarShow() { return this.snackbarStore.show },
-    authError() { return this.authStore.error },
-    isLoading() { return this.authStore.loading },
+    snackbarShow(): boolean { return this.snackbarStore.show },
+    authError(): any { return this.authStore.error },
+    isLoading(): boolean { return this.authStore.loading },
   },
 
   watch: {
-    authError(newVal) {
+    authError(newVal: any) {
       if (newVal) {
         const msg = Array.isArray(newVal) ? newVal.join(', ') : newVal
-        this.snackbarStore.error(msg)
+        this.snackbarStore.error(msg as string)
       }
     },
-    snackbarShow(val) {
+    snackbarShow(val: boolean) {
       if (!val) {
         this.authStore.error = null
       }
@@ -90,8 +89,9 @@ export default {
   },
 
   methods: {
-    async onSubmit() {
-      if (this.$refs.form.validate()) {
+    async onSubmit(): Promise<void> {
+      const form = this.$refs.form as any
+      if (form?.validate()) {
         const ok = await this.authStore.login(this.email, this.password)
         if (ok) {
           this.$router.push('/dashboard')

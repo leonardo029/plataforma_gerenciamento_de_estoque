@@ -1,7 +1,7 @@
 <template>
   <v-footer app height="40">
     <a
-      v-for="item in appMeta.socialLinks"
+      v-for="item in appMetaStore.socialLinks"
       :key="item.title"
       class="d-inline-block mx-2 social-link"
       :href="item.href"
@@ -16,15 +16,22 @@
       class="text-caption text-disabled"
       style="position: absolute; right: 16px"
     >
-      &copy; {{ appMeta.currentYear }}
-      <span class="d-none d-sm-inline-block"> - {{ appMeta.footerSuffix }}</span>
+      &copy; {{ appMetaStore.currentYear }}
+      <span class="d-none d-sm-inline-block"> - {{ appMetaStore.footerSuffix }}</span>
     </div>
   </v-footer>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+import { mapStores } from 'pinia'
 import { useAppMetaStore } from '@/stores/app-meta'
-const appMeta = useAppMetaStore()
+
+export default {
+  name: 'AppFooter',
+  computed: {
+    ...mapStores(useAppMetaStore),
+  },
+}
 </script>
 
 <style scoped lang="sass">

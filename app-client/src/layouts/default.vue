@@ -56,14 +56,14 @@
 <script lang="ts">
 import { useAuthStore } from '@/stores/auth'
 import { useLayoutStore } from '@/stores/layout'
+import { mapStores } from 'pinia'
 export default {
   name: "DefaultLayout",
   computed: {
-    authStore() { return useAuthStore() },
-    layoutStore() { return useLayoutStore() },
+    ...mapStores(useAuthStore, useLayoutStore),
     drawer: {
       get() { return this.layoutStore.drawer },
-      set(v:any) { this.layoutStore.drawer = v },
+      set(v: boolean) { this.layoutStore.drawer = v },
     },
     userName(): string {
       return this.authStore.user?.name ?? 'Usuário'
@@ -76,13 +76,13 @@ export default {
     }
   },
   methods: {
-    toggleDrawer() {
+    toggleDrawer(): void {
       this.layoutStore.toggleDrawer()
     },
-    goDashboard() {
+    goDashboard(): void {
       this.layoutStore.goDashboard()
     },
-    logout() {
+    logout(): void {
       this.authStore.logoutAndRedirect()
     }
   }

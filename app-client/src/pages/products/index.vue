@@ -136,6 +136,7 @@
 <script lang="ts">
 import type { ProductListItem } from "@/services/products";
 import { useProductsStore } from '@/stores/products'
+import { mapStores } from 'pinia'
 
 type VFormRef = {
   validate: () => Promise<boolean | { valid: boolean }> | boolean | { valid: boolean };
@@ -157,7 +158,7 @@ export default {
     };
   },
   computed: {
-    productsStore() { return useProductsStore() },
+    ...mapStores(useProductsStore),
     // list & pagination
     products(): ProductListItem[] { return this.productsStore.products },
     loading(): boolean { return this.productsStore.loading },
@@ -228,9 +229,9 @@ export default {
     },
   },
   watch: {
-    async search() { await this.productsStore.setSearch(this.search) },
-    async page() { await this.productsStore.setPage(this.page) },
-    async itemsPerPage() { await this.productsStore.setItemsPerPage(this.itemsPerPage) },
+    async search(newVal: string) { await this.productsStore.setSearch(newVal) },
+    async page(newVal: number) { await this.productsStore.setPage(newVal) },
+    async itemsPerPage(newVal: number) { await this.productsStore.setItemsPerPage(newVal) },
   },
   async mounted() {
     await this.productsStore.init()
