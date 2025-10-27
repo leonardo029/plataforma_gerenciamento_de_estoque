@@ -1,7 +1,7 @@
 <template>
   <v-footer app height="40">
     <a
-      v-for="item in appMetaStore.socialLinks"
+      v-for="item in socialLinks"
       :key="item.title"
       class="d-inline-block mx-2 social-link"
       :href="item.href"
@@ -16,20 +16,27 @@
       class="text-caption text-disabled"
       style="position: absolute; right: 16px"
     >
-      &copy; {{ appMetaStore.currentYear }}
-      <span class="d-none d-sm-inline-block"> - {{ appMetaStore.footerSuffix }}</span>
+      &copy; {{ currentYear }}
+      <span class="d-none d-sm-inline-block"> - {{ footerSuffix }}</span>
     </div>
   </v-footer>
 </template>
 
 <script lang="ts">
-import { mapStores } from 'pinia'
-import { useAppMetaStore } from '@/stores/app-meta'
-
 export default {
   name: 'AppFooter',
-  computed: {
-    ...mapStores(useAppMetaStore),
+  data() {
+    return {
+      socialLinks: [
+        {
+          title: 'Project GitHub',
+          icon: 'mdi-github',
+          href: 'https://github.com/leonardo029/plataforma_gerenciamento_de_estoque/tree/main',
+        },
+      ],
+      footerSuffix: 'Product Manager',
+      currentYear: new Date().getFullYear(),
+    }
   },
 }
 </script>
