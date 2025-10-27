@@ -9,6 +9,7 @@ import { registerPlugins } from '@/plugins'
 
 // Components
 import App from './App.vue'
+import pinia from '@/stores'
 
 // Composables
 import { createApp } from 'vue'
@@ -17,6 +18,7 @@ import { createApp } from 'vue'
 import 'unfonts.css'
 
 const app = createApp(App)
+app.use(pinia)
 
 registerPlugins(app)
 
