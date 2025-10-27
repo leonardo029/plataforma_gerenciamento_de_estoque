@@ -6,6 +6,7 @@ export class FindAllStockResource {
   constructor(entity: StockEntity) {
     this.id = entity.id;
     this.batch = entity.batch;
+    this.expiration_date = entity.expiration_date;
     this.cost_price = entity.cost_price;
     this.sale_price = entity.sale_price;
     this.stock_quantity = entity.stock_quantity;

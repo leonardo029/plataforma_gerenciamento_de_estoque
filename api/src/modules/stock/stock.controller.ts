@@ -8,10 +8,16 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UserEntity } from '../user/entities';
-import { CreateStockDto, RemoveStockDto, UpdateStockDto } from './dto';
+import {
+  CreateStockDto,
+  RemoveStockDto,
+  UpdateStockDto,
+  FilterStockDto,
+} from './dto';
 import { StockService } from './stock.service';
 
 @Controller('stock')
@@ -36,8 +42,8 @@ export class StockController {
   }
 
   @Get()
-  findAll() {
-    return this.stockService.findAll();
+  findAll(@Query() filters: FilterStockDto) {
+    return this.stockService.findAll(filters);
   }
 
   @Delete(':id')
