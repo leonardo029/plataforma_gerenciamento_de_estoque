@@ -241,9 +241,9 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
+import type { CityItem, StateItem, StreetTypeItem } from "@/services/locations";
 import type { UserForm } from "@/stores/users/users";
-import type { StateItem, CityItem, StreetTypeItem } from "@/services/locations";
+import type { PropType } from "vue";
 
 type VFormRef = {
   validate?: () =>

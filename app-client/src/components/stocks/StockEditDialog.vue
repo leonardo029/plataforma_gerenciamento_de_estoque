@@ -66,10 +66,10 @@
 
 <script lang="ts">
 import type { PropType } from 'vue'
-import type { StockForm } from '@/stores/stocks'
 import type { ProductListItem } from '@/services/products'
 import type { SupplierListItem } from '@/services/suppliers'
 import type { ShelfItem, CorridorItem, SectionItem } from '@/services/stock-locations'
+import type { StockForm } from '@/stores/stock/stock-form';
 
 type VFormRef = {
   validate: () => Promise<boolean | { valid: boolean }>;
