@@ -7,3 +7,4 @@ export * from "./IUserCreatePayload";
 export * from "./IUserDetail";
 export * from "./IUserListItem";
 export * from "./IUserUpdatePayload";
+export * from "./IUserForm";

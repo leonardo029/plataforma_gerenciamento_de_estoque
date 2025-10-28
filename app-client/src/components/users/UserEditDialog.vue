@@ -241,8 +241,7 @@
 </template>
 
 <script lang="ts">
-import type { IStateItem, ICityItem, IStreetTypeItem } from "@/interfaces";
-import type { UserForm } from "@/stores/users/users";
+import type { IStateItem, ICityItem, IStreetTypeItem, IUserForm } from "@/interfaces";
 import type { PropType } from "vue";
 
 type VFormRef = {
@@ -259,7 +258,7 @@ export default {
   props: {
     dialog: { type: Boolean, required: true },
     isEdit: { type: Boolean, required: true },
-    form: { type: Object as PropType<UserForm>, required: true },
+    form: { type: Object as PropType<IUserForm>, required: true },
     rules: { type: Object, required: true },
     roles: {
       type: Array as PropType<Array<{ title: string; value: string }>>,

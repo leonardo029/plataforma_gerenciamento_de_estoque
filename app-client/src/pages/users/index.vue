@@ -7,7 +7,7 @@
     />
 
     <UsersTable
-      :users="filteredUsers"
+      :users="users"
       :loading="loading"
       :page="page"
       @update:page="page = $event"
@@ -42,7 +42,9 @@
 
 <script lang="ts">
 import { mapStores } from "pinia";
-import { useUsersStore } from "@/stores/users/users";
+import { useUserListStore } from "@/stores/users/user-list";
+import { useUserFormStore } from "@/stores/users/user-form";
+import { userRules } from "@/utils";
 import type { IUserListItem } from "@/interfaces";
 
 export default {
@@ -56,124 +58,124 @@ export default {
     };
   },
   computed: {
-    ...mapStores(useUsersStore),
+    ...mapStores(useUserListStore, useUserFormStore),
     // list & pagination
-    filteredUsers(): IUserListItem[] {
-      return this.usersStore.filteredUsers;
+    users(): IUserListItem[] {
+      return this.userListStore.users;
     },
     loading(): boolean {
-      return this.usersStore.loading;
+      return this.userListStore.loading;
     },
     search: {
       get(): string {
-        return this.usersStore.search;
+        return this.userListStore.search;
       },
       set(v: string) {
-        this.usersStore.search = v;
+        this.userListStore.search = v;
       },
     },
     page: {
       get(): number {
-        return this.usersStore.page;
+        return this.userListStore.page;
       },
       set(v: number) {
-        this.usersStore.page = v;
+        this.userListStore.page = v;
       },
     },
     limit: {
       get(): number {
-        return this.usersStore.limit;
+        return this.userListStore.limit;
       },
       set(v: number) {
-        this.usersStore.limit = v;
+        this.userListStore.limit = v;
       },
     },
     itemsLength(): number {
-      return this.usersStore.itemsLength;
+      return this.userListStore.total;
     },
 
     // dialog & form
     dialog: {
       get(): boolean {
-        return this.usersStore.dialog;
+        return this.userFormStore.dialog;
       },
       set(v: boolean) {
-        this.usersStore.dialog = v;
+        this.userFormStore.dialog = v;
       },
     },
     isEdit(): boolean {
-      return this.usersStore.isEdit;
+      return this.userFormStore.isEditing;
     },
     userForm: {
       get() {
-        return this.usersStore.form;
+        return this.userFormStore.form;
       },
       set(v: any) {
-        this.usersStore.form = v;
+        this.userFormStore.form = v;
       },
     },
     rules() {
-      return this.usersStore.rules;
+      return userRules;
     },
 
     // reference lists
     states() {
-      return this.usersStore.states;
+      return this.userFormStore.states;
     },
     cities() {
-      return this.usersStore.cities;
+      return this.userFormStore.cities;
     },
     streetTypes() {
-      return this.usersStore.streetTypes;
+      return this.userFormStore.streetTypes;
     },
     selectedStateCode: {
       get(): number | null {
-        return this.usersStore.selectedStateCode;
+        return this.userFormStore.selectedStateCode;
       },
       set(v: number | null) {
-        this.usersStore.selectedStateCode = v;
+        this.userFormStore.selectedStateCode = v;
       },
     },
     currentAddressLabels(): string {
-      return this.usersStore.currentAddressLabels;
+      return this.userFormStore.currentAddressLabels;
     },
   },
   methods: {
     async fetchUsers(): Promise<void> {
-      await this.usersStore.fetchUsers();
+      await this.userListStore.fetchUsers();
     },
     openCreate(): void {
-      this.usersStore.openCreate();
+      this.userFormStore.openCreate();
     },
     async openEdit(item: IUserListItem): Promise<void> {
-      await this.usersStore.openEdit(item.id);
+      await this.userFormStore.openEdit(item.id);
     },
     async submit(): Promise<void> {
-      await this.usersStore.submit();
+      await this.userFormStore.submit();
     },
     async onDelete(item: IUserListItem): Promise<void> {
-      await this.usersStore.deleteUserById(item.id);
+      await this.userListStore.deleteUserById(item.id);
     },
     closeDialog(): void {
-      this.usersStore.closeDialog();
+      this.userFormStore.closeDialog();
     },
   },
   watch: {
     async page(newVal: number) {
-      await this.usersStore.setPage(newVal);
+      await this.userListStore.setPage(newVal);
     },
     async limit(newVal: number) {
-      await this.usersStore.setLimit(newVal);
+      await this.userListStore.setLimit(newVal);
     },
     async search(newVal: string) {
-      await this.usersStore.setSearch(newVal);
+      await this.userListStore.setSearch(newVal);
     },
     async selectedStateCode(code: number | null) {
-      await this.usersStore.setSelectedStateCode(code ?? null);
+      await this.userFormStore.setSelectedStateCode(code ?? null);
     },
   },
   async mounted() {
-    await this.usersStore.init();
+    await this.userListStore.fetchUsers();
   },
 };
 </script>
