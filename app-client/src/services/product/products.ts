@@ -2,12 +2,11 @@ import type {
   IProductListItem,
   IProductDetail,
   IProductForm,
-  IProductCreatePayload,
-  IProductUpdatePayload,
   IBrandListItem,
   ICategoryListItem,
   IPaginated,
 } from "@/interfaces";
+import { toProductCreatePayload, toProductUpdatePayload } from "@/utils";
 import api from "../api";
 
 export const getProducts = async (params?: {
@@ -36,16 +35,7 @@ export const getProductById = async (id: string): Promise<IProductDetail> => {
 
 export const createProduct = async (form: IProductForm): Promise<void> => {
   try {
-    const payload: IProductCreatePayload = {
-      name: form.name,
-      identificationCode: form.identificationCode,
-      description: form.description,
-      idBrand: form.idBrand,
-      idCategory: form.idCategory,
-      unitOfMeasurement: form.unitOfMeasurement,
-      isActivated: form.isActivated,
-      nutritionalInformation: form.nutritionalInformation,
-    };
+    const payload = toProductCreatePayload(form);
 
     await api.post("/product", payload);
   } catch (error) {
@@ -59,15 +49,7 @@ export const updateProduct = async (
   form: IProductForm
 ): Promise<void> => {
   try {
-    const payload: IProductUpdatePayload = {
-      name: form.name,
-      identificationCode: form.identificationCode,
-      description: form.description,
-      idBrand: form.idBrand,
-      idCategory: form.idCategory,
-      unitOfMeasurement: form.unitOfMeasurement,
-      nutritionalInformation: form.nutritionalInformation,
-    };
+    const payload = toProductUpdatePayload(form);
 
     await api.patch(`/product/${id}`, payload);
   } catch (error) {

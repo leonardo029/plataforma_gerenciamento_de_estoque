@@ -14,6 +14,7 @@ import {
 } from "@/services/stock/stock-locations";
 import { getProducts } from "@/services/product/products";
 import { useStockListStore } from "./stock-list";
+import { toStockCreatePayload, toStockUpdatePayload } from "@/utils";
 import type {
   ISupplierListItem,
   IShelfItem,
@@ -23,26 +24,10 @@ import type {
   IStockDetail,
   IStockUpdatePayload,
   IStockCreatePayload,
+  IStockForm,
 } from "@/interfaces";
 
-export interface StockForm {
-  id?: string;
-  product_id: string;
-  batch: string;
-  expiration_date: string;
-  cost_price: number | null;
-  sale_price: number | null;
-  supplier_id: string;
-  stock_quantity: number | null;
-  isActivated: boolean;
-  stock_location: {
-    shelf_id: string;
-    corridor_id: string;
-    section_id: string;
-  };
-}
-
-function defaultForm(): StockForm {
+function defaultForm(): IStockForm {
   return {
     product_id: "",
     batch: "",
@@ -74,23 +59,6 @@ export const useStockFormStore = defineStore("stockForm", {
   getters: {
     isEditing(state): boolean {
       return !!state.form?.id;
-    },
-    rules() {
-      return {
-        required: (v: any) => !!v || "Campo obrigatório",
-        max45: (v: string) => !v || v.length <= 45 || "Máx. 45 caracteres",
-        min0: (v: any) =>
-          v === null || v === undefined || Number(v) >= 0 || "Mínimo 0",
-        min1: (v: any) =>
-          v === null || v === undefined || Number(v) >= 1 || "Mínimo 1",
-        decimal2: (v: any) => {
-          if (v === null || v === undefined || v === "") return true;
-          const num = Number(v);
-          if (isNaN(num)) return "Informe um número válido";
-          const [, decPart] = String(num).split(".");
-          return !decPart || decPart.length <= 2 || "Máx. 2 casas decimais";
-        },
-      };
     },
   },
 
@@ -180,17 +148,12 @@ export const useStockFormStore = defineStore("stockForm", {
       const stockListStore = useStockListStore();
       this.saving = true;
       try {
-        const payload = {
-          ...this.form,
-          cost_price: Number(this.form.cost_price ?? 0),
-          sale_price: Number(this.form.sale_price ?? 0),
-          stock_quantity: Number(this.form.stock_quantity ?? 0),
-        };
-
         if (this.isEditing) {
+          const payload = toStockUpdatePayload(this.form);
           await updateStock(this.form.id!, payload as IStockUpdatePayload);
           sb.success("Estoque atualizado com sucesso");
         } else {
+          const payload = toStockCreatePayload(this.form);
           await createStock(payload as IStockCreatePayload);
           sb.success("Estoque criado com sucesso");
         }

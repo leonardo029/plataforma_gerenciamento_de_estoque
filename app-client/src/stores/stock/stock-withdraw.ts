@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { useSnackbarStore } from "@/stores/snackbar/snackbar";
 import { withdrawStock } from "@/services/stock/stocks";
 import { useStockListStore } from "./stock-list";
+import { toStockWithdrawPayload } from "@/utils";
 import type { IStockListItem } from "@/interfaces";
 
 export const useStockWithdrawStore = defineStore("stockWithdraw", {
@@ -14,13 +15,6 @@ export const useStockWithdrawStore = defineStore("stockWithdraw", {
   }),
 
   getters: {
-    rules() {
-      return {
-        required: (v: any) => !!v || "Campo obrigatório",
-        min1: (v: any) =>
-          v === null || v === undefined || Number(v) >= 1 || "Mínimo 1",
-      };
-    },
   },
 
   actions: {
@@ -37,10 +31,11 @@ export const useStockWithdrawStore = defineStore("stockWithdraw", {
 
       this.loading = true;
       try {
-        await withdrawStock({
-          stock_id: this.selectedStock.id,
-          stock_quantity: Number(this.quantity),
-        });
+        const payload = toStockWithdrawPayload(
+          this.selectedStock.id,
+          Number(this.quantity)
+        );
+        await withdrawStock(payload);
         sb.success("Retirada realizada com sucesso");
         this.close();
         await stockListStore.fetchStocks();
