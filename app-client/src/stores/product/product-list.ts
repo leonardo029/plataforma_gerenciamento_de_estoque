@@ -9,8 +9,8 @@ export const useProductListStore = defineStore("productList", {
     loading: false,
     search: "",
     page: 1,
-    itemsPerPage: 10,
-    totalItems: 0,
+    limit: 10,
+    total: 0,
     searchDebounce: null as any, // State to hold the debounce timer
   }),
 
@@ -22,12 +22,12 @@ export const useProductListStore = defineStore("productList", {
         const { items, total, page, limit } = await getProducts({
           name: this.search || undefined,
           page: this.page,
-          limit: this.itemsPerPage,
+          limit: this.limit,
         });
         this.products = items;
-        this.totalItems = total;
+        this.total = total;
         this.page = page;
-        this.itemsPerPage = limit;
+        this.limit = limit;
       } catch (err: any) {
         sb.error(err?.message || "Falha ao carregar produtos");
       } finally {
@@ -46,8 +46,8 @@ export const useProductListStore = defineStore("productList", {
     },
 
     // Smart action with page reset
-    async setItemsPerPage(value: number) {
-      this.itemsPerPage = value;
+    async setLimit(value: number) {
+      this.limit = value;
       this.page = 1;
       await this.fetchProducts();
     },

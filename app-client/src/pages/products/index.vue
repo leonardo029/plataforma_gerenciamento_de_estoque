@@ -13,7 +13,7 @@
       @update:page="page = $event"
       :items-per-page="itemsPerPage"
       @update:items-per-page="itemsPerPage = $event"
-      :total-items="totalItems"
+      :items-length="itemsLength"
       @edit="openEdit"
       @delete="onDelete"
       @refresh="fetchProducts"
@@ -80,14 +80,14 @@ export default {
     },
     itemsPerPage: {
       get(): number {
-        return this.productListStore.itemsPerPage;
+        return this.productListStore.limit;
       },
       set(v: number) {
-        this.productListStore.setItemsPerPage(v);
+        this.productListStore.setLimit(v);
       },
     },
-    totalItems(): number {
-      return this.productListStore.totalItems;
+    itemsLength(): number {
+      return this.productListStore.total;
     },
 
     // dialog & form

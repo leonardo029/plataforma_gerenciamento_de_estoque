@@ -9,14 +9,14 @@ export const useStockListStore = defineStore("stockList", {
     loading: false,
     search: "",
     page: 1,
-    itemsPerPage: 10,
-    totalItems: 0,
+    limit: 10,
+    total: 0,
     searchDebounce: null as any,
   }),
 
   getters: {
     itemsLength(state): number {
-      return state.totalItems;
+      return state.total;
     },
   },
 
@@ -28,12 +28,12 @@ export const useStockListStore = defineStore("stockList", {
         const { items, total, page, limit } = await getStocks({
           name: this.search || undefined,
           page: this.page,
-          limit: this.itemsPerPage,
+          limit: this.limit,
         });
         this.stocks = items;
-        this.totalItems = total;
+        this.total = total;
         this.page = page;
-        this.itemsPerPage = limit;
+        this.limit = limit;
       } catch (err: any) {
         sb.error(err?.message || "Falha ao carregar estoques");
       } finally {
@@ -50,8 +50,8 @@ export const useStockListStore = defineStore("stockList", {
       }, 500);
     },
 
-    async setItemsPerPage(value: number) {
-      this.itemsPerPage = value;
+    async setLimit(value: number) {
+      this.limit = value;
       this.page = 1;
       await this.fetchStocks();
     },

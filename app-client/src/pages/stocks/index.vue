@@ -11,8 +11,8 @@
       :loading="stockListStore.loading"
       :page="stockListStore.page"
       @update:page="stockListStore.setPage"
-      :items-per-page="stockListStore.itemsPerPage"
-      @update:items-per-page="stockListStore.setItemsPerPage"
+      :items-per-page="stockListStore.limit"
+      @update:items-per-page="stockListStore.setLimit"
       :items-length="stockListStore.itemsLength"
       @edit="stockFormStore.openEdit"
       @withdraw="stockWithdrawStore.open"
@@ -34,7 +34,7 @@
       :shelf-items="stockFormStore.shelfItems"
       :corridor-items="stockFormStore.corridorItems"
       :section-items="stockFormStore.sectionItems"
-      :rules="stockFormStore.rules"
+      :rules="stockRules"
       @close="stockFormStore.closeDialog"
       @submit="stockFormStore.submit"
     />
@@ -47,7 +47,7 @@
       :loading="stockWithdrawStore.loading"
       :quantity="stockWithdrawStore.quantity"
       @update:quantity="stockWithdrawStore.quantity = $event"
-      :rules="stockWithdrawStore.rules"
+      :rules="stockRules"
       @close="stockWithdrawStore.close"
       @submit="stockWithdrawStore.confirm"
     />
@@ -61,6 +61,7 @@ import { defineComponent } from "vue";
 import { useStockListStore } from "@/stores/stock/stock-list";
 import { useStockFormStore } from "@/stores/stock/stock-form";
 import { useStockWithdrawStore } from "@/stores/stock/stock-withdraw";
+import { stockRules } from "@/utils/rules/stock-rules";
 
 // Importing child components directly
 import StocksToolbar from "@/components/stocks/StocksToolbar.vue";
@@ -87,6 +88,7 @@ export default defineComponent({
       stockListStore,
       stockFormStore,
       stockWithdrawStore,
+      stockRules,
     };
   },
   async mounted() {

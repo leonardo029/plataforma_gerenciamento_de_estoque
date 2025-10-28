@@ -8,7 +8,7 @@
       :page="page"
       @update:page="$emit('update:page', $event)"
       @update:items-per-page="$emit('update:items-per-page', $event)"
-      :items-length="totalItems"
+      :items-length="itemsLength"
       item-key="id"
       class="elevation-1"
     >
@@ -70,7 +70,7 @@ export default {
       type: Number,
       required: true,
     },
-    totalItems: {
+    itemsLength: {
       type: Number,
       required: true,
     },
