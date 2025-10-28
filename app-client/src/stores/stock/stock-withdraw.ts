@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { useSnackbarStore } from "@/stores/snackbar/snackbar";
 import type { StockListItem } from "@/services/stocks";
 import { withdrawStock } from "@/services/stocks";
-import { useStockListStore } from "./stock/stock-list";
+import { useStockListStore } from "./stock-list";
 
 export const useStockWithdrawStore = defineStore("stockWithdraw", {
   state: () => ({
