@@ -18,21 +18,21 @@
 </template>
 
 <script lang="ts">
-import { mapStores } from 'pinia'
-import { useSnackbarStore } from '@/stores/snackbar'
+import { mapStores } from "pinia";
+import { useSnackbarStore } from "@/stores/snackbar/snackbar";
 
 export default {
-  name: 'AppSnackbar',
+  name: "AppSnackbar",
   computed: {
     ...mapStores(useSnackbarStore),
     iconName(): string {
-      return this.snackbarStore.iconName
+      return this.snackbarStore.iconName;
     },
   },
   methods: {
     close(): void {
-      this.snackbarStore.hide()
+      this.snackbarStore.hide();
     },
   },
-}
+};
 </script>

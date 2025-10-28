@@ -1,13 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Inject } from '@nestjs/common';
 import { ShelfService } from './shelf.service';
-import { FindAllShelfResource } from './resources';
 
 @Controller('shelf')
 export class ShelfController {
-  constructor(private readonly shelfService: ShelfService) {}
+  @Inject(ShelfService)
+  private readonly shelfService: ShelfService;
 
   @Get()
-  async findAll(): Promise<FindAllShelfResource[]> {
+  findAll() {
     return this.shelfService.findAll();
   }
 }

@@ -24,6 +24,7 @@ import { CreateProductSupplierDto } from '../product-supplier/dto';
 import { FindAllStockResource, FindByIdStockResource } from './resources';
 import { SupplierService } from '../supplier/supplier.service';
 import { StockEntity } from './entities';
+import { PaginatedResource } from 'src/common/resources';
 @Injectable()
 export class StockService {
   @InjectRepository(StockRepository)
@@ -200,12 +201,9 @@ export class StockService {
     return new FindByIdStockResource(stock);
   }
 
-  async findAll(filters: FilterStockDto): Promise<{
-    items: FindAllStockResource[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
+  async findAll(
+    filters: FilterStockDto,
+  ): Promise<PaginatedResource<FindAllStockResource>> {
     const page = filters.page ?? 1;
     const limit = filters.limit ?? 10;
 
@@ -225,11 +223,12 @@ export class StockService {
       take: limit,
     });
 
-    return {
-      items: stocks.map((stock) => new FindAllStockResource(stock)),
-      total,
+    return new PaginatedResource(
+      stocks,
+      FindAllStockResource,
       page,
       limit,
-    };
+      total,
+    );
   }
 }

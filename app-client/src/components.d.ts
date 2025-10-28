@@ -11,10 +11,24 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AppBar: typeof import('./components/appBar/AppBar.vue')['default']
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     AppSnackbar: typeof import('./components/AppSnackbar.vue')['default']
-    LoginView: typeof import('./components/LoginView.vue')['default']
+    DashboardCard: typeof import('./components/dashboard/DashboardCard.vue')['default']
+    LoginForm: typeof import('./components/LoginForm.vue')['default']
+    MenuVertical: typeof import('./components/MenuVertical.vue')['default']
+    ProductEditDialog: typeof import('./components/products/ProductEditDialog.vue')['default']
+    ProductsTable: typeof import('./components/products/ProductsTable.vue')['default']
+    ProductsToolbar: typeof import('./components/products/ProductsToolbar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    StockEditDialog: typeof import('./components/stocks/StockEditDialog.vue')['default']
+    StocksTable: typeof import('./components/stocks/StocksTable.vue')['default']
+    StocksToolbar: typeof import('./components/stocks/StocksToolbar.vue')['default']
+    StockWithdrawDialog: typeof import('./components/stocks/StockWithdrawDialog.vue')['default']
+    UserEditDialog: typeof import('./components/users/UserEditDialog.vue')['default']
+    UserInfo: typeof import('./components/appBar/UserInfo.vue')['default']
+    UsersTable: typeof import('./components/users/UsersTable.vue')['default']
+    UsersToolbar: typeof import('./components/users/UsersToolbar.vue')['default']
   }
 }

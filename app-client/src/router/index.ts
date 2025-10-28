@@ -73,6 +73,11 @@ router.beforeEach((to, from, next) => {
     return
   }
 
+  if (to.path === '/' && token) {
+    next({ path: '/dashboard' })
+    return
+  }
+
   // Role guard (if route declares roles)
   const roles = (to.meta as any)?.roles as string[] | undefined
   if (roles) {

@@ -11,6 +11,7 @@ import { ProductEntity } from './entities';
 import { ProductAuditService } from '../product-audit/product-audit.service';
 import { CreateProductAuditDto } from '../product-audit/dto';
 import { ActionType } from '../product-audit/types/action-type';
+import { PaginatedResource } from 'src/common/resources';
 
 @Injectable()
 export class ProductService {
@@ -121,12 +122,9 @@ export class ProductService {
     return new FindByIdProductResource(product);
   }
 
-  async findAll(filters: ProductQueryDto): Promise<{
-    items: FindAllProductResource[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
+  async findAll(
+    filters: ProductQueryDto,
+  ): Promise<PaginatedResource<FindAllProductResource>> {
     const where: FindOptionsWhere<ProductEntity> = {
       isActivated: true,
     };
@@ -146,11 +144,12 @@ export class ProductService {
       take: limit,
     });
 
-    return {
-      items: products.map((product) => new FindAllProductResource(product)),
-      total,
+    return new PaginatedResource(
+      products,
+      FindAllProductResource,
       page,
       limit,
-    };
+      total,
+    );
   }
 }
