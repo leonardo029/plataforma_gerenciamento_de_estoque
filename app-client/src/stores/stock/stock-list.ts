@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import { useSnackbarStore } from "@/stores/snackbar/snackbar";
-import type { StockListItem } from "@/services/stocks";
-import { getStocks, deleteStock } from "@/services/stocks";
+import { getStocks, deleteStock } from "@/services/stock/stocks";
+import type { IStockListItem } from "@/interfaces";
 
 export const useStockListStore = defineStore("stockList", {
   state: () => ({
-    stocks: [] as StockListItem[],
+    stocks: [] as IStockListItem[],
     loading: false,
     search: "",
     page: 1,

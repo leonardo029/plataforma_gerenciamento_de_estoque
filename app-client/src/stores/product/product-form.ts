@@ -1,21 +1,16 @@
 import { defineStore } from "pinia";
 import { useSnackbarStore } from "@/stores/snackbar/snackbar";
-import type {
-  ProductForm,
-  ProductDetail,
-  BrandListItem,
-  CategoryListItem,
-} from "@/services/products";
 import {
   getProductById,
   createProduct,
   updateProduct,
   getBrands,
   getCategories,
-} from "@/services/products";
+} from "@/services/product/products";
 import { useProductListStore } from "./product-list";
+import type { IProductForm, IBrandListItem, ICategoryListItem, IProductDetail } from "@/interfaces";
 
-function defaultForm(): ProductForm {
+function defaultForm(): IProductForm {
   return {
     name: "",
     identificationCode: "",
@@ -41,8 +36,8 @@ export const useProductFormStore = defineStore("productForm", {
     formValid: false,
     saving: false,
     form: defaultForm(),
-    brandItems: [] as BrandListItem[],
-    categoryItems: [] as CategoryListItem[],
+    brandItems: [] as IBrandListItem[],
+    categoryItems: [] as ICategoryListItem[],
     selectsLoaded: false,
   }),
 
@@ -84,7 +79,7 @@ export const useProductFormStore = defineStore("productForm", {
       const sb = useSnackbarStore();
       try {
         await this.ensureBrandCategory();
-        const detail: ProductDetail = await getProductById(id);
+        const detail: IProductDetail = await getProductById(id);
         this.form = {
           id: detail.id,
           name: detail.name,

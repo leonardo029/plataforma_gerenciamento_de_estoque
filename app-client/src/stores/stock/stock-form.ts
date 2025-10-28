@@ -1,26 +1,29 @@
 import { defineStore } from "pinia";
 import { useSnackbarStore } from "@/stores/snackbar/snackbar";
-import type {
-  StockDetail,
-  StockCreatePayload,
-  StockUpdatePayload,
-} from "@/services/stocks";
-import { getStockById, createStock, updateStock } from "@/services/stocks";
-import type { SupplierListItem } from "@/services/suppliers";
-import { getSuppliers } from "@/services/suppliers";
-import type {
-  ShelfItem,
-  CorridorItem,
-  SectionItem,
-} from "@/services/stock-locations";
+import {
+  getStockById,
+  createStock,
+  updateStock,
+} from "@/services/stock/stocks";
+import { getSuppliers } from "@/services/stock/suppliers";
+
 import {
   getShelves,
   getCorridors,
   getSections,
-} from "@/services/stock-locations";
-import type { ProductListItem } from "@/services/products";
-import { getProducts } from "@/services/products";
+} from "@/services/stock/stock-locations";
+import { getProducts } from "@/services/product/products";
 import { useStockListStore } from "./stock-list";
+import type {
+  ISupplierListItem,
+  IShelfItem,
+  ICorridorItem,
+  ISectionItem,
+  IProductListItem,
+  IStockDetail,
+  IStockUpdatePayload,
+  IStockCreatePayload,
+} from "@/interfaces";
 
 export interface StockForm {
   id?: string;
@@ -59,11 +62,11 @@ export const useStockFormStore = defineStore("stockForm", {
     formValid: false,
     saving: false,
     form: defaultForm(),
-    supplierItems: [] as SupplierListItem[],
-    shelfItems: [] as ShelfItem[],
-    corridorItems: [] as CorridorItem[],
-    sectionItems: [] as SectionItem[],
-    productItems: [] as ProductListItem[],
+    supplierItems: [] as ISupplierListItem[],
+    shelfItems: [] as IShelfItem[],
+    corridorItems: [] as ICorridorItem[],
+    sectionItems: [] as ISectionItem[],
+    productItems: [] as IProductListItem[],
     selectsLoaded: false,
     productsLoaded: false,
   }),
@@ -122,7 +125,7 @@ export const useStockFormStore = defineStore("stockForm", {
       if (this.productsLoaded) return;
       const sb = useSnackbarStore();
       try {
-        const all: ProductListItem[] = [];
+        const all: IProductListItem[] = [];
         let page = 1;
         const limit = 100;
         while (true) {
@@ -149,7 +152,7 @@ export const useStockFormStore = defineStore("stockForm", {
       const sb = useSnackbarStore();
       try {
         await this.ensureSelectData();
-        const detail: StockDetail = await getStockById(id);
+        const detail: IStockDetail = await getStockById(id);
         this.form = {
           id: detail.id,
           product_id: detail.product.id,
@@ -185,10 +188,10 @@ export const useStockFormStore = defineStore("stockForm", {
         };
 
         if (this.isEditing) {
-          await updateStock(this.form.id!, payload as StockUpdatePayload);
+          await updateStock(this.form.id!, payload as IStockUpdatePayload);
           sb.success("Estoque atualizado com sucesso");
         } else {
-          await createStock(payload as StockCreatePayload);
+          await createStock(payload as IStockCreatePayload);
           sb.success("Estoque criado com sucesso");
         }
         this.dialog = false;

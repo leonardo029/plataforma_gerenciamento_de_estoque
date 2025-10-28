@@ -1,32 +1,34 @@
 import { defineStore } from "pinia";
 import { useSnackbarStore } from "@/stores/snackbar/snackbar";
-import type {
-  UserListItem,
-  UserDetail,
-  UserCreatePayload,
-  UserUpdatePayload,
-  UserRole,
-} from "@/services/users";
 import {
   getUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
-} from "@/services/users";
-import type { StateItem, CityItem, StreetTypeItem } from "@/services/locations";
+} from "@/services/users/users";
 import {
   getStates,
   getCitiesByState,
   getStreetTypes,
-} from "@/services/locations";
+} from "@/services/users/locations";
+import type {
+  ICityItem,
+  IStateItem,
+  IStreetTypeItem,
+  IUserCreatePayload,
+  IUserDetail,
+  IUserListItem,
+  IUserUpdatePayload,
+} from "@/interfaces";
+import type { TUserRole } from "@/utils";
 
 export interface UserForm {
   name: string;
   email: string;
   password: string;
   isActivated: boolean;
-  role: UserRole | null;
+  role: TUserRole | null;
   contact: {
     country_code: number | null;
     ddd: number | null;
@@ -66,7 +68,7 @@ function defaultForm(): UserForm {
 export const useUsersStore = defineStore("users", {
   state: () => ({
     // List & pagination
-    items: [] as UserListItem[],
+    items: [] as IUserListItem[],
     loading: false,
     search: "",
     page: 1,
@@ -81,16 +83,16 @@ export const useUsersStore = defineStore("users", {
     form: defaultForm() as UserForm,
 
     // Reference lists
-    states: [] as StateItem[],
-    cities: [] as CityItem[],
-    streetTypes: [] as StreetTypeItem[],
+    states: [] as IStateItem[],
+    cities: [] as ICityItem[],
+    streetTypes: [] as IStreetTypeItem[],
     selectedStateCode: null as number | null,
     // Cache flag to prevent duplicate requests for states/street types
     referencesLoaded: false,
   }),
 
   getters: {
-    filteredUsers(state): UserListItem[] {
+    filteredUsers(state): IUserListItem[] {
       // Server-side search; return items as received
       return state.items;
     },
@@ -194,7 +196,7 @@ export const useUsersStore = defineStore("users", {
       this.form = defaultForm();
       await this.loadReferenceData();
       try {
-        const detail: UserDetail = await getUserById(id);
+        const detail: IUserDetail = await getUserById(id);
         this.form.name = detail.name;
         this.form.email = detail.email;
         this.form.isActivated = detail.isActivated;
@@ -241,7 +243,7 @@ export const useUsersStore = defineStore("users", {
       const sb = useSnackbarStore();
       try {
         if (this.isEdit && this.selectedUserId) {
-          const payload: UserUpdatePayload = {};
+          const payload: IUserUpdatePayload = {};
           payload.name = this.form.name || undefined;
           payload.email = this.form.email || undefined;
           if (this.form.password && this.form.password.length >= 8) {
@@ -285,7 +287,7 @@ export const useUsersStore = defineStore("users", {
             sb.error("Preencha Papel, Cidade e Tipo de Logradouro");
             return;
           }
-          const payload: UserCreatePayload = {
+          const payload: IUserCreatePayload = {
             name: this.form.name,
             email: this.form.email,
             password: this.form.password,

@@ -1,15 +1,15 @@
 import { defineStore } from "pinia";
 import { useSnackbarStore } from "@/stores/snackbar/snackbar";
-import type { StockListItem } from "@/services/stocks";
-import { withdrawStock } from "@/services/stocks";
+import { withdrawStock } from "@/services/stock/stocks";
 import { useStockListStore } from "./stock-list";
+import type { IStockListItem } from "@/interfaces";
 
 export const useStockWithdrawStore = defineStore("stockWithdraw", {
   state: () => ({
     dialog: false,
     valid: false,
     loading: false,
-    selectedStock: null as StockListItem | null,
+    selectedStock: null as IStockListItem | null,
     quantity: 1,
   }),
 
@@ -24,7 +24,7 @@ export const useStockWithdrawStore = defineStore("stockWithdraw", {
   },
 
   actions: {
-    open(item: StockListItem) {
+    open(item: IStockListItem) {
       this.selectedStock = item;
       this.quantity = 1;
       this.dialog = true;
