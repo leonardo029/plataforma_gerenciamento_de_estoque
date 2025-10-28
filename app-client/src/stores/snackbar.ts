@@ -29,9 +29,9 @@ export const useSnackbarStore = defineStore('snackbar', {
     open(payload: { message: string; type?: SnackbarType; timeout?: number; location?: SnackbarLocation; showIcon?: boolean }) {
       this.message = payload.message
       this.type = payload.type ?? 'info'
-      if (payload.timeout !== undefined) this.timeout = payload.timeout
-      if (payload.location !== undefined) this.location = payload.location
-      if (payload.showIcon !== undefined) this.showIcon = payload.showIcon
+      this.timeout = payload.timeout ?? 4000
+      this.location = payload.location ?? 'bottom'
+      this.showIcon = payload.showIcon ?? true
       this.show = true
     },
     success(message: string) { this.open({ message, type: 'success' }) },
