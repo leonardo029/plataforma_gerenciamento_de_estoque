@@ -219,8 +219,8 @@
 </template>
 
 <script lang="ts">
+import type { IBrandListItem, ICategoryListItem, IProductCreatePayload } from "@/interfaces";
 import type { PropType } from "vue";
-import type { BrandListItem, CategoryListItem, ProductCreatePayload } from "@/services/products";
 
 type VFormRef = {
   validate: () => Promise<boolean | { valid: boolean }>;
@@ -244,15 +244,15 @@ export default {
       required: true,
     },
     form: {
-      type: Object as PropType<ProductCreatePayload>,
+      type: Object as PropType<IProductCreatePayload>,
       required: true,
     },
     brandItems: {
-      type: Array as PropType<BrandListItem[]>,
+      type: Array as PropType<IBrandListItem[]>,
       required: true,
     },
     categoryItems: {
-      type: Array as PropType<CategoryListItem[]>,
+      type: Array as PropType<ICategoryListItem[]>,
       required: true,
     },
     rules: {

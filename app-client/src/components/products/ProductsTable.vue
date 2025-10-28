@@ -13,14 +13,24 @@
       class="elevation-1"
     >
       <template #item.actions="{ item }">
-        <v-btn icon="mdi-pencil" variant="text" color="primary" @click="$emit('edit', item.id)" />
-        <v-btn icon="mdi-delete" variant="text" color="error" @click="$emit('delete', item.id)" />
+        <v-btn
+          icon="mdi-pencil"
+          variant="text"
+          color="primary"
+          @click="$emit('edit', item.id)"
+        />
+        <v-btn
+          icon="mdi-delete"
+          variant="text"
+          color="error"
+          @click="$emit('delete', item.id)"
+        />
       </template>
 
       <template #no-data>
         <div class="pa-6 text-medium-emphasis">Nenhum produto encontrado.</div>
       </template>
-      
+
       <template #footer.prepend>
         <v-btn
           icon="mdi-refresh"
@@ -38,14 +48,14 @@
 </template>
 
 <script lang="ts">
-import type { ProductListItem } from "@/services/products";
+import type { IProductListItem } from "@/interfaces";
 import type { PropType } from "vue";
 
 export default {
   name: "ProductsTable",
   props: {
     products: {
-      type: Array as PropType<ProductListItem[]>,
+      type: Array as PropType<IProductListItem[]>,
       required: true,
     },
     loading: {
@@ -65,7 +75,7 @@ export default {
       required: true,
     },
   },
-  emits: ['update:page', 'update:items-per-page', 'edit', 'delete', 'refresh'],
+  emits: ["update:page", "update:items-per-page", "edit", "delete", "refresh"],
   data() {
     return {
       headers: [

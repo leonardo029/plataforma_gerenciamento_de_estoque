@@ -40,11 +40,11 @@
 </template>
 
 <script lang="ts">
-import type { ProductListItem } from "@/services/products";
 import { useProductListStore } from "@/stores/product/product-list";
 import { mapStores } from "pinia";
 import { productRules } from "@/utils/rules/product-rules";
 import { useProductFormStore } from "@/stores/product/product-form";
+import type { IProductListItem } from "@/interfaces";
 
 export default {
   name: "ProductsPage",
@@ -56,7 +56,7 @@ export default {
   computed: {
     ...mapStores(useProductListStore, useProductFormStore),
     // list & pagination
-    products(): ProductListItem[] {
+    products(): IProductListItem[] {
       return this.productListStore.products;
     },
     loading(): boolean {

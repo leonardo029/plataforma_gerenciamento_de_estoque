@@ -241,7 +241,7 @@
 </template>
 
 <script lang="ts">
-import type { CityItem, StateItem, StreetTypeItem } from "@/services/locations";
+import type { IStateItem, ICityItem, IStreetTypeItem } from "@/interfaces";
 import type { UserForm } from "@/stores/users/users";
 import type { PropType } from "vue";
 
@@ -265,9 +265,9 @@ export default {
       type: Array as PropType<Array<{ title: string; value: string }>>,
       required: true,
     },
-    states: { type: Array as PropType<StateItem[]>, required: true },
-    cities: { type: Array as PropType<CityItem[]>, required: true },
-    streetTypes: { type: Array as PropType<StreetTypeItem[]>, required: true },
+    states: { type: Array as PropType<IStateItem[]>, required: true },
+    cities: { type: Array as PropType<ICityItem[]>, required: true },
+    streetTypes: { type: Array as PropType<IStreetTypeItem[]>, required: true },
     selectedStateCode: {
       type: Number as PropType<number | null>,
       required: false,

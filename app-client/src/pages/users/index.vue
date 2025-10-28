@@ -43,7 +43,7 @@
 <script lang="ts">
 import { mapStores } from "pinia";
 import { useUsersStore } from "@/stores/users/users";
-import type { UserListItem } from "@/services/users";
+import type { IUserListItem } from "@/interfaces";
 
 export default {
   name: "UsersPage",
@@ -58,7 +58,7 @@ export default {
   computed: {
     ...mapStores(useUsersStore),
     // list & pagination
-    filteredUsers(): UserListItem[] {
+    filteredUsers(): IUserListItem[] {
       return this.usersStore.filteredUsers;
     },
     loading(): boolean {
@@ -145,13 +145,13 @@ export default {
     openCreate(): void {
       this.usersStore.openCreate();
     },
-    async openEdit(item: UserListItem): Promise<void> {
+    async openEdit(item: IUserListItem): Promise<void> {
       await this.usersStore.openEdit(item.id);
     },
     async submit(): Promise<void> {
       await this.usersStore.submit();
     },
-    async onDelete(item: UserListItem): Promise<void> {
+    async onDelete(item: IUserListItem): Promise<void> {
       await this.usersStore.deleteUserById(item.id);
     },
     closeDialog(): void {

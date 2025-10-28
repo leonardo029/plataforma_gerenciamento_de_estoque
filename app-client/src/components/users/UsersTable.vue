@@ -13,7 +13,7 @@
   >
     <template #item.isActivated="{ item }">
       <v-chip :color="item.isActivated ? 'success' : 'warning'" size="small">
-        {{ item.isActivated ? 'Ativo' : 'Inativo' }}
+        {{ item.isActivated ? "Ativo" : "Inativo" }}
       </v-chip>
     </template>
 
@@ -39,14 +39,14 @@
 </template>
 
 <script lang="ts">
-import type { UserListItem } from '@/services/users';
-import type { PropType } from 'vue';
+import type { IUserListItem } from "@/interfaces";
+import type { PropType } from "vue";
 
 export default {
-  name: 'UsersTable',
+  name: "UsersTable",
   props: {
     users: {
-      type: Array as PropType<UserListItem[]>,
+      type: Array as PropType<IUserListItem[]>,
       required: true,
     },
     loading: {
@@ -66,15 +66,15 @@ export default {
       required: true,
     },
   },
-  emits: ['update:page', 'update:limit', 'edit', 'refresh'],
+  emits: ["update:page", "update:limit", "edit", "refresh"],
   data() {
     return {
       headers: [
-        { title: 'Nome', key: 'name' },
-        { title: 'Email', key: 'email' },
-        { title: 'Papel', key: 'role' },
-        { title: 'Ativo', key: 'isActivated' },
-        { title: 'Ações', key: 'actions', sortable: false },
+        { title: "Nome", key: "name" },
+        { title: "Email", key: "email" },
+        { title: "Papel", key: "role" },
+        { title: "Ativo", key: "isActivated" },
+        { title: "Ações", key: "actions", sortable: false },
       ] as const,
     };
   },
