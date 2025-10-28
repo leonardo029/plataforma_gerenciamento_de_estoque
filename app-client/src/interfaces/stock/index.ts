@@ -7,3 +7,4 @@ export * from "./IStockListItem";
 export * from "./IStockUpdatePayload";
 export * from "./IStockWithdrawPayload";
 export * from "./ISupplierListItem";
+export * from "./IStockForm";

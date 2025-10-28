@@ -181,7 +181,7 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
-import type { StockForm } from "@/stores/stock/stock-form";
+import type { IStockForm } from "@/interfaces";
 import type {
   ICorridorItem,
   IProductListItem,
@@ -202,7 +202,7 @@ export default {
     dialog: { type: Boolean, required: true },
     formValid: { type: Boolean, required: true },
     saving: { type: Boolean, required: true },
-    form: { type: Object as PropType<StockForm>, required: true },
+    form: { type: Object as PropType<IStockForm>, required: true },
     isEditing: { type: Boolean, required: true },
     productItems: {
       type: Array as PropType<IProductListItem[]>,
