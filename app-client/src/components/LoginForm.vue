@@ -92,10 +92,6 @@ export default {
     async onSubmit(): Promise<void> {
       const form = this.$refs.form as any
       if (form?.validate()) {
-        const ok = await this.authStore.login(this.email, this.password)
-        if (ok) {
-          this.$router.push('/dashboard')
-        }
         await this.authStore.loginAndRedirect(this.email, this.password)
       }
     },
