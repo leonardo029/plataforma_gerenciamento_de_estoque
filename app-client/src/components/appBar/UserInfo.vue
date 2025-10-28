@@ -9,18 +9,18 @@
 </template>
 
 <script lang="ts">
-import { useAuthStore } from '@/stores/auth'
-import { mapStores } from 'pinia'
+import { useAuthStore } from "@/stores/auth/auth";
+import { mapStores } from "pinia";
 
 export default {
   name: "UserInfo",
   computed: {
     ...mapStores(useAuthStore),
     userName(): string {
-      return this.authStore.user?.name ?? 'User'
+      return this.authStore.user?.name ?? "User";
     },
     userEmail(): string {
-      return this.authStore.user?.email ?? ''
+      return this.authStore.user?.email ?? "";
     },
   },
 };

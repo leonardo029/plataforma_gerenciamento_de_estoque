@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer app v-model="drawer" width="280">
-    <UserInfo/>
+    <UserInfo />
 
     <v-divider class="my-2" />
 
@@ -29,8 +29,8 @@
 </template>
 
 <script lang="ts">
-import { useAuthStore } from "@/stores/auth";
-import { useLayoutStore } from "@/stores/layout";
+import { useAuthStore } from "@/stores/auth/auth";
+import { useLayoutStore } from "@/stores/layout/layout";
 import { mapStores } from "pinia";
 export default {
   name: "MenuVertical",

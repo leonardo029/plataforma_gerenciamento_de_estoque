@@ -57,20 +57,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { useStockListStore } from '@/stores/stock-list'
-import { useStockFormStore } from '@/stores/stock-form'
-import { useStockWithdrawStore } from '@/stores/stock-withdraw'
+import { defineComponent } from "vue";
+import { useStockListStore } from "@/stores/stock/stock-list";
+import { useStockFormStore } from "@/stores/stock/stock-form";
+import { useStockWithdrawStore } from "@/stores/stock/stock-withdraw";
 
 // Importing child components directly
-import StocksToolbar from '@/components/stocks/StocksToolbar.vue'
-import StocksTable from '@/components/stocks/StocksTable.vue'
-import StockEditDialog from '@/components/stocks/StockEditDialog.vue'
-import StockWithdrawDialog from '@/components/stocks/StockWithdrawDialog.vue'
-import AppSnackbar from '@/components/AppSnackbar.vue'
+import StocksToolbar from "@/components/stocks/StocksToolbar.vue";
+import StocksTable from "@/components/stocks/StocksTable.vue";
+import StockEditDialog from "@/components/stocks/StockEditDialog.vue";
+import StockWithdrawDialog from "@/components/stocks/StockWithdrawDialog.vue";
+import AppSnackbar from "@/components/AppSnackbar.vue";
 
 export default defineComponent({
-  name: 'StocksPage',
+  name: "StocksPage",
   components: {
     StocksToolbar,
     StocksTable,
@@ -79,20 +79,20 @@ export default defineComponent({
     AppSnackbar,
   },
   setup() {
-    const stockListStore = useStockListStore()
-    const stockFormStore = useStockFormStore()
-    const stockWithdrawStore = useStockWithdrawStore()
+    const stockListStore = useStockListStore();
+    const stockFormStore = useStockFormStore();
+    const stockWithdrawStore = useStockWithdrawStore();
 
     return {
       stockListStore,
       stockFormStore,
       stockWithdrawStore,
-    }
+    };
   },
   async mounted() {
-    await this.stockListStore.fetchStocks()
+    await this.stockListStore.fetchStocks();
   },
-})
+});
 </script>
 
 <style scoped>

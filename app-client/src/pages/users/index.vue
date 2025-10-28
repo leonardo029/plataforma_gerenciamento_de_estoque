@@ -41,81 +41,139 @@
 </template>
 
 <script lang="ts">
-import { mapStores } from 'pinia'
-import { useUsersStore } from '@/stores/users'
-import type { UserListItem } from '@/services/users'
+import { mapStores } from "pinia";
+import { useUsersStore } from "@/stores/users/users";
+import type { UserListItem } from "@/services/users";
 
 export default {
-  name: 'UsersPage',
+  name: "UsersPage",
   data() {
     return {
       roles: [
-        { title: 'Administrador', value: 'admin' },
-        { title: 'Usuário', value: 'user' },
+        { title: "Administrador", value: "admin" },
+        { title: "Usuário", value: "user" },
       ] as Array<{ title: string; value: string }>,
-    }
+    };
   },
   computed: {
     ...mapStores(useUsersStore),
     // list & pagination
-    filteredUsers(): UserListItem[] { return this.usersStore.filteredUsers },
-    loading(): boolean { return this.usersStore.loading },
+    filteredUsers(): UserListItem[] {
+      return this.usersStore.filteredUsers;
+    },
+    loading(): boolean {
+      return this.usersStore.loading;
+    },
     search: {
-      get(): string { return this.usersStore.search },
-      set(v: string) { this.usersStore.search = v },
+      get(): string {
+        return this.usersStore.search;
+      },
+      set(v: string) {
+        this.usersStore.search = v;
+      },
     },
     page: {
-      get(): number { return this.usersStore.page },
-      set(v: number) { this.usersStore.page = v },
+      get(): number {
+        return this.usersStore.page;
+      },
+      set(v: number) {
+        this.usersStore.page = v;
+      },
     },
     limit: {
-      get(): number { return this.usersStore.limit },
-      set(v: number) { this.usersStore.limit = v },
+      get(): number {
+        return this.usersStore.limit;
+      },
+      set(v: number) {
+        this.usersStore.limit = v;
+      },
     },
-    itemsLength(): number { return this.usersStore.itemsLength },
+    itemsLength(): number {
+      return this.usersStore.itemsLength;
+    },
 
     // dialog & form
     dialog: {
-      get(): boolean { return this.usersStore.dialog },
-      set(v: boolean) { this.usersStore.dialog = v },
+      get(): boolean {
+        return this.usersStore.dialog;
+      },
+      set(v: boolean) {
+        this.usersStore.dialog = v;
+      },
     },
-    isEdit(): boolean { return this.usersStore.isEdit },
+    isEdit(): boolean {
+      return this.usersStore.isEdit;
+    },
     userForm: {
-      get() { return this.usersStore.form },
-      set(v: any) { this.usersStore.form = v },
+      get() {
+        return this.usersStore.form;
+      },
+      set(v: any) {
+        this.usersStore.form = v;
+      },
     },
-    rules() { return this.usersStore.rules },
+    rules() {
+      return this.usersStore.rules;
+    },
 
     // reference lists
-    states() { return this.usersStore.states },
-    cities() { return this.usersStore.cities },
-    streetTypes() { return this.usersStore.streetTypes },
-    selectedStateCode: {
-      get(): number | null { return this.usersStore.selectedStateCode },
-      set(v: number | null) { this.usersStore.selectedStateCode = v },
+    states() {
+      return this.usersStore.states;
     },
-    currentAddressLabels(): string { return this.usersStore.currentAddressLabels },
+    cities() {
+      return this.usersStore.cities;
+    },
+    streetTypes() {
+      return this.usersStore.streetTypes;
+    },
+    selectedStateCode: {
+      get(): number | null {
+        return this.usersStore.selectedStateCode;
+      },
+      set(v: number | null) {
+        this.usersStore.selectedStateCode = v;
+      },
+    },
+    currentAddressLabels(): string {
+      return this.usersStore.currentAddressLabels;
+    },
   },
   methods: {
-    async fetchUsers(): Promise<void> { await this.usersStore.fetchUsers() },
-    openCreate(): void { this.usersStore.openCreate() },
-    async openEdit(item: UserListItem): Promise<void> { await this.usersStore.openEdit(item.id) },
-    async submit(): Promise<void> {
-      await this.usersStore.submit()
+    async fetchUsers(): Promise<void> {
+      await this.usersStore.fetchUsers();
     },
-    async onDelete(item: UserListItem): Promise<void> { await this.usersStore.deleteUserById(item.id) },
+    openCreate(): void {
+      this.usersStore.openCreate();
+    },
+    async openEdit(item: UserListItem): Promise<void> {
+      await this.usersStore.openEdit(item.id);
+    },
+    async submit(): Promise<void> {
+      await this.usersStore.submit();
+    },
+    async onDelete(item: UserListItem): Promise<void> {
+      await this.usersStore.deleteUserById(item.id);
+    },
     closeDialog(): void {
-      this.usersStore.closeDialog()
+      this.usersStore.closeDialog();
     },
   },
   watch: {
-    async page(newVal: number) { await this.usersStore.setPage(newVal) },
-    async limit(newVal: number) { await this.usersStore.setLimit(newVal) },
-    async search(newVal: string) { await this.usersStore.setSearch(newVal) },
-    async selectedStateCode(code: number | null) { await this.usersStore.setSelectedStateCode(code ?? null) },
+    async page(newVal: number) {
+      await this.usersStore.setPage(newVal);
+    },
+    async limit(newVal: number) {
+      await this.usersStore.setLimit(newVal);
+    },
+    async search(newVal: string) {
+      await this.usersStore.setSearch(newVal);
+    },
+    async selectedStateCode(code: number | null) {
+      await this.usersStore.setSelectedStateCode(code ?? null);
+    },
   },
   async mounted() {
-    await this.usersStore.init()
+    await this.usersStore.init();
   },
-}
+};
 </script>

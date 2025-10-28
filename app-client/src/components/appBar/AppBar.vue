@@ -1,13 +1,15 @@
 <template>
   <v-app-bar app>
     <v-app-bar-nav-icon @click="toggleDrawer" />
-    <v-app-bar-title style="cursor: pointer" @click="goDashboard">Product Manager</v-app-bar-title>
+    <v-app-bar-title style="cursor: pointer" @click="goDashboard"
+      >Product Manager</v-app-bar-title
+    >
   </v-app-bar>
 </template>
 
 <script lang="ts">
-import { useLayoutStore } from '@/stores/layout'
-import { mapStores } from 'pinia'
+import { useLayoutStore } from "@/stores/layout/layout";
+import { mapStores } from "pinia";
 export default {
   name: "AppBar",
   computed: {
@@ -15,11 +17,11 @@ export default {
   },
   methods: {
     toggleDrawer(): void {
-      this.layoutStore.toggleDrawer()
+      this.layoutStore.toggleDrawer();
     },
     goDashboard(): void {
-      this.layoutStore.goDashboard()
+      this.layoutStore.goDashboard();
     },
-  }
+  },
 };
 </script>
