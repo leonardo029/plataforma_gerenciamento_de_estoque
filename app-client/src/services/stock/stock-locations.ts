@@ -1,17 +1,32 @@
 import type { IShelfItem, ICorridorItem, ISectionItem } from "@/interfaces";
 import api from "../api";
 
-export async function getShelves(): Promise<IShelfItem[]> {
-  const { data } = await api.get<IShelfItem[]>("/shelf");
-  return data;
-}
+export const getShelves = async (): Promise<IShelfItem[]> => {
+  try {
+    const response = await api.get("/shelf");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching shelves:", error);
+    throw new Error("Failed to fetch shelves.");
+  }
+};
 
-export async function getCorridors(): Promise<ICorridorItem[]> {
-  const { data } = await api.get<ICorridorItem[]>("/corridor");
-  return data;
-}
+export const getCorridors = async (): Promise<ICorridorItem[]> => {
+  try {
+    const response = await api.get("/corridor");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching corridors:", error);
+    throw new Error("Failed to fetch corridors.");
+  }
+};
 
-export async function getSections(): Promise<ISectionItem[]> {
-  const { data } = await api.get<ISectionItem[]>("/section");
-  return data;
-}
+export const getSections = async (): Promise<ISectionItem[]> => {
+  try {
+    const response = await api.get("/section");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching sections:", error);
+    throw new Error("Failed to fetch sections.");
+  }
+};

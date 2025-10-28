@@ -1,11 +1,15 @@
 import type { ILoginPayload, ILoginResponse } from "@/interfaces";
 import api from "../api";
 
-export async function login(payload: ILoginPayload): Promise<ILoginResponse> {
-  const params = new URLSearchParams();
-  params.append("email", payload.email);
-  params.append("password", payload.password);
-
-  const { data } = await api.post<ILoginResponse>("/login", params);
-  return data;
-}
+export const login = async ({
+  email,
+  password,
+}: ILoginPayload): Promise<ILoginResponse> => {
+  try {
+    const response = await api.post("/login", { email, password });
+    return response.data;
+  } catch (error) {
+    console.error("Error during login:", error);
+    throw new Error("Failed to login. Please check your credentials.");
+  }
+};
