@@ -5,7 +5,7 @@
     <v-text-field
       :model-value="search"
       @update:model-value="$emit('update:search', $event)"
-      label="Pesquisar por nome/email"
+      label="Pesquisar por nome"
       prepend-inner-icon="mdi-magnify"
       variant="outlined"
       hide-details
