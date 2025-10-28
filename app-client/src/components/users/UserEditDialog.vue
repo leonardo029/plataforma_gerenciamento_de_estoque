@@ -13,39 +13,41 @@
       <v-card-text>
         <v-form ref="formRef">
           <div class="mb-2 text-subtitle-2">Dados do usuário</div>
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                :model-value="form.name"
-                @update:model-value="
-                  $emit('update:form', { ...form, name: $event })
-                "
-                label="Nome"
-                :rules="[rules.required]"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                :model-value="form.email"
-                @update:model-value="
-                  $emit('update:form', { ...form, email: $event })
-                "
-                label="Email"
-                :rules="[rules.required, rules.email]"
-              />
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                :model-value="form.password"
-                @update:model-value="
-                  $emit('update:form', { ...form, password: $event })
-                "
-                type="password"
-                label="Senha"
-                :hint="isEdit ? 'Deixe em branco para manter' : ''"
-                :rules="isEdit ? [] : [rules.required, rules.minPassword]"
-              />
-            </v-col>
+      <v-row>
+        <v-col cols="12" md="6">
+          <v-text-field
+            :model-value="form.name"
+            @update:model-value="
+              $emit('update:form', { ...form, name: $event })
+            "
+            label="Nome"
+            :rules="[rules.required]"
+          />
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field
+            :model-value="form.email"
+            @update:model-value="
+              $emit('update:form', { ...form, email: $event })
+            "
+            label="Email"
+            :rules="[rules.required, rules.email]"
+          />
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field
+            :model-value="form.password"
+            @update:model-value="
+              $emit('update:form', { ...form, password: $event })
+            "
+            :type="showPassword ? 'text' : 'password'"
+            label="Senha"
+            :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+            @click:append-inner="showPassword = !showPassword"
+            :hint="isEdit ? 'Deixe em branco para manter' : ''"
+            :rules="isEdit ? [] : [rules.required, rules.minPassword]"
+          />
+        </v-col>
             <v-col cols="12" md="3">
               <v-select
                 :model-value="form.role"
@@ -255,6 +257,11 @@ type VFormRef = {
 
 export default {
   name: "UserEditDialog",
+  data() {
+    return {
+      showPassword: false as boolean,
+    };
+  },
   props: {
     dialog: { type: Boolean, required: true },
     isEdit: { type: Boolean, required: true },
