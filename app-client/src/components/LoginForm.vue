@@ -12,7 +12,7 @@
           label="Email"
           outlined
           prepend-inner-icon="mdi-email"
-          :rules="[rules.required, rules.email]"
+          :rules="[loginFormRules.required, loginFormRules.email]"
           type="email"
         />
 
@@ -22,7 +22,7 @@
           label="Senha"
           outlined
           prepend-inner-icon="mdi-lock"
-          :rules="[rules.required]"
+          :rules="[loginFormRules.required]"
           :type="showPassword ? 'text' : 'password'"
           :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
           @click:append-inner="showPassword = !showPassword"
@@ -50,6 +50,7 @@ import { mapStores } from "pinia";
 import { useAuthStore } from "@/stores/auth/auth";
 import { useSnackbarStore } from "@/stores/snackbar/snackbar";
 import AppSnackbar from "@/components/AppSnackbar.vue";
+import { loginFormRules } from "@/utils";
 
 export default {
   name: "LoginForm",
@@ -60,20 +61,12 @@ export default {
       password: "" as string,
       showPassword: false as boolean,
       isValid: false as boolean,
+      loginFormRules,
     };
   },
 
   computed: {
     ...mapStores(useAuthStore, useSnackbarStore),
-    rules(): {
-      required: (v: string) => true | string;
-      email: (v: string) => true | string;
-    } {
-      return {
-        required: (v: string) => !!v || "Campo obrigatório",
-        email: (v: string) => /.+@.+\..+/.test(v) || "E-mail inválido",
-      };
-    },
     snackbarShow(): boolean {
       return this.snackbarStore.show;
     },

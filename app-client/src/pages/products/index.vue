@@ -29,7 +29,7 @@
       @update:form="form = $event"
       :brand-items="brandItems"
       :category-items="categoryItems"
-      :rules="rules"
+      :rules="productRules"
       :is-editing="isEditing"
       @close="closeDialog"
       @submit="onSubmit"
@@ -43,14 +43,14 @@
 import type { ProductListItem } from "@/services/products";
 import { useProductListStore } from "@/stores/product/product-list";
 import { mapStores } from "pinia";
-import { rules } from "@/utils/validations";
+import { productRules } from "@/utils/rules/product-rules";
 import { useProductFormStore } from "@/stores/product/product-form";
 
 export default {
   name: "ProductsPage",
   data() {
     return {
-      rules,
+      productRules,
     };
   },
   computed: {

@@ -1,4 +1,4 @@
-export const rules = {
+export const productRules = {
   required: (v: any) => (v !== null && v !== undefined && v !== '') || 'Campo obrigatório',
   max150: (v: string) => (!v || v.length <= 150) || 'Máx 150 caracteres',
   max45: (v: string) => (!v || v.length <= 45) || 'Máx 45 caracteres',
