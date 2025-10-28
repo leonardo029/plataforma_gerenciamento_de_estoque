@@ -120,6 +120,7 @@ export const useStockFormStore = defineStore("stockForm", {
       const sb = useSnackbarStore();
       try {
         await this.ensureSelectData();
+        await this.fetchAllProducts();
         const detail: IStockDetail = await getStockById(id);
         this.form = {
           id: detail.id,
