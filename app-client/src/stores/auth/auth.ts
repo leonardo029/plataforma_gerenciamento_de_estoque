@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { login as authLogin } from "@/services/auth/auth";
 import router from "@/router";
+import { ROUTE_DASHBOARD, ROUTE_LOGIN } from "@/router/paths";
 
 export type AuthUser = {
   name: string;
@@ -66,7 +67,7 @@ export const useAuthStore = defineStore("auth", {
     async loginAndRedirect(email: string, password: string) {
       const ok = await this.login(email, password);
       if (ok) {
-        router.push("/dashboard");
+        router.push(ROUTE_DASHBOARD);
       }
       return ok;
     },
@@ -80,7 +81,7 @@ export const useAuthStore = defineStore("auth", {
     },
     logoutAndRedirect() {
       this.logout();
-      router.push("/");
+      router.push(ROUTE_LOGIN);
     },
   },
 });
