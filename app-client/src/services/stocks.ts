@@ -17,6 +17,7 @@ export type StockDetail = {
   cost_price: number;
   sale_price: number;
   stock_quantity: number;
+  is_activated: boolean;
   product: {
     id: string;
     name: string;
